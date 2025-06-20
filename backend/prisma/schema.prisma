@@ -4,18 +4,29 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
-}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Job {
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Category {
   id        Int      @id @default(autoincrement())
+  name      String   @unique
   createdAt DateTime @default(now())
-  status    String
+  jobs      Job[]
+}
+
+model Job {
+  id          Int      @id @default(autoincrement())
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  price       Float
+  timeslot    String   // e.g. "2h"
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
 }
