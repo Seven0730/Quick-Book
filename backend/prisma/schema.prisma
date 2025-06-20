@@ -4,7 +4,6 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -22,11 +21,21 @@ model Category {
 }
 
 model Job {
-  id          Int      @id @default(autoincrement())
-  categoryId  Int
-  category    Category @relation(fields: [categoryId], references: [id])
-  price       Float
-  timeslot    String   // e.g. "2h"
-  status      String   @default("PENDING")
-  createdAt   DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  price      Float
+  timeslot   String // e.g. "2h"
+  status     String   @default("PENDING")
+  createdAt  DateTime @default(now())
+  escrows    Escrow[]
+}
+
+model Escrow {
+  id        Int      @id @default(autoincrement())
+  jobId     Int
+  job       Job      @relation(fields: [jobId], references: [id])
+  amount    Float
+  status    String   @default("HOLD")
+  createdAt DateTime @default(now())
 }
