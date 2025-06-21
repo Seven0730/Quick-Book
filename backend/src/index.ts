@@ -10,16 +10,16 @@ async function start() {
     const app = Fastify({ logger: true });
     await app.register(cors, { origin: '*' });
 
+    const server = app.server;
+    const io = new IOServer(server, { cors: { origin: '*' } });
+    app.decorate('io', io);
+
     app.register(categoriesRoutes, { prefix: '/categories' });
     app.register(jobsRoutes, { prefix: '/jobs' });
     app.register(escrowRoutes, { prefix: '/escrow' });
 
     await app.listen({ port: 4000 });
-    const server = app.server;
     app.log.info('HTTP server running on http://localhost:4000');
-
-    const io = new IOServer(server, { cors: { origin: '*' } });
-    app.decorate('io', io);
 
     io.on('connection', (socket) => {
         app.log.info(`Client connected: ${socket.id}`);
