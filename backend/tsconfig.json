@@ -16,6 +16,9 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/types.d.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

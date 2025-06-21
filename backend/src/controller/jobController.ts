@@ -15,6 +15,7 @@ export class JobController {
     static async create(req: FastifyRequest, reply: FastifyReply) {
         const body = req.body as { categoryId: number; price: number; timeslot: string };
         const item = await jobService.create(body);
+        req.server.io.emit('new-job', item);
         reply.status(201).send(item);
     }
     static async update(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
