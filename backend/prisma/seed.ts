@@ -29,6 +29,20 @@ async function main() {
         },
     });
 
+    for (let i = 1; i <= 30; i++) {
+        await prisma.provider.createMany({
+            data: Array.from({ length: 30 }, (_, i) => ({
+                name: `Provider ${i + 1}`,
+                rating: Math.round((3 + Math.random() * 2) * 10) / 10,
+                completed: Math.floor(Math.random() * 100),
+                lat: 1.30 + Math.random() * 0.10,
+                lon: 103.8 + Math.random() * 0.10,
+                available: Math.random() < 0.8,
+            })),
+            skipDuplicates: true,
+        });
+    }
+
     console.log('Seed data has been created.');
 }
 

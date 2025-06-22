@@ -39,3 +39,14 @@ model Escrow {
   status    String   @default("HOLD")
   createdAt DateTime @default(now())
 }
+
+model Provider {
+  id        Int      @id @default(autoincrement())
+  name      String
+  rating    Float    @default(0)
+  completed Int      @default(0)
+  lat       Float
+  lon       Float
+  available Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
