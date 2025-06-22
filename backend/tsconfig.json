@@ -17,8 +17,7 @@
     }
   },
   "include": [
-    "src/**/*.ts",
-    "src/types.d.ts"
+    "src/**/*.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

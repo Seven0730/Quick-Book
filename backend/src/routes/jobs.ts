@@ -7,4 +7,5 @@ export async function jobsRoutes(app: FastifyInstance) {
     app.post('/', JobController.create);
     app.put('/:id', JobController.update);
     app.delete('/:id', JobController.delete);
+    app.post('/:id/accept', JobController.accept);
 }
