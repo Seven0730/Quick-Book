@@ -8,4 +8,12 @@ export const jobRepo = {
     update: (id: number, data: { price?: number; timeslot?: string; status?: string }) =>
         prisma.job.update({ where: { id }, data }),
     delete: (id: number) => prisma.job.delete({ where: { id } }),
+
+    accept: async (id: number): Promise<boolean> => {
+        const res = await prisma.job.updateMany({
+            where: { id, status: 'PENDING' },
+            data: { status: 'BOOKED' },
+        });
+        return res.count === 1;
+    },
 };

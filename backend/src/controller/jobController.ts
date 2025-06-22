@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { jobService } from '../service/jobService';
+import { getIO } from '../socket';
 
 export class JobController {
     static async list(req: FastifyRequest, reply: FastifyReply) {
@@ -15,7 +16,7 @@ export class JobController {
     static async create(req: FastifyRequest, reply: FastifyReply) {
         const body = req.body as { categoryId: number; price: number; timeslot: string };
         const item = await jobService.create(body);
-        (req.server as any).io.emit('new-job', item);  //TODO: fix type error
+        getIO().emit('new-job', item);
         reply.status(201).send(item);
     }
     static async update(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
@@ -28,5 +29,26 @@ export class JobController {
         const id = Number(req.params.id);
         await jobService.delete(id);
         reply.send({ success: true });
+    }
+
+    static async accept(
+        req: FastifyRequest<{ Params: { id: string } }>,
+        reply: FastifyReply
+    ) {
+        const id = Number(req.params.id);
+        try {
+            const job = await jobService.accept(id);
+
+            // broadcast to all connected WebSocket clients
+            getIO().emit('job-booked', job);
+
+            return reply.send(job);
+        } catch (err: any) {
+            if (err.message === 'Job already taken') {
+                return reply.status(409).send({ error: err.message });
+            }
+            req.log.error(err);
+            return reply.status(500).send({ error: 'Internal Server Error' });
+        }
     }
 }

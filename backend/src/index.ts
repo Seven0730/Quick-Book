@@ -1,32 +1,23 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import { Server as IOServer } from 'socket.io';
 import { categoriesRoutes } from './routes/categories';
 import { jobsRoutes } from './routes/jobs';
 import { escrowRoutes } from './routes/escrow';
+import { initSocket } from './socket';
 
 async function start() {
 
     const app = Fastify({ logger: true });
     await app.register(cors, { origin: '*' });
 
-    const server = app.server;
-    const io = new IOServer(server, { cors: { origin: '*' } });
-    app.decorate('io', io);
-
     app.register(categoriesRoutes, { prefix: '/categories' });
     app.register(jobsRoutes, { prefix: '/jobs' });
     app.register(escrowRoutes, { prefix: '/escrow' });
 
     await app.listen({ port: 4000 });
-    app.log.info('HTTP server running on http://localhost:4000');
+    app.log.info('HTTP server listening on http://localhost:4000');
 
-    io.on('connection', (socket) => {
-        app.log.info(`Client connected: ${socket.id}`);
-        socket.on('disconnect', () => {
-            app.log.info(`Client disconnected: ${socket.id}`);
-        });
-    });
+    initSocket(app.server);
 
 }
 
