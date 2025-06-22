@@ -5,7 +5,16 @@ import { Job } from '@prisma/client';
 export const jobService = {
     list: () => jobRepo.findAll(),
     get: (id: number) => jobRepo.findById(id),
-    create: (data: { categoryId: number; price: number; timeslot: string }) => jobRepo.create(data),
+    create: async (payload: {
+        categoryId: number;
+        price: number;
+        timeslot: string;
+        customerLat: number;
+        customerLon: number;
+    }): Promise<Job> => {
+        const job = await jobRepo.create(payload);
+        return job;
+    },
     update: (id: number, data: { price?: number; timeslot?: string; status?: string }) => jobRepo.update(id, data),
     delete: (id: number) => jobRepo.delete(id),
 

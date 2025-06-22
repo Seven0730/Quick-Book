@@ -21,14 +21,16 @@ model Category {
 }
 
 model Job {
-  id         Int      @id @default(autoincrement())
-  categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id])
-  price      Float
-  timeslot   String // e.g. "2h"
-  status     String   @default("PENDING")
-  createdAt  DateTime @default(now())
-  escrows    Escrow[]
+  id          Int      @id @default(autoincrement())
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  price       Float
+  timeslot    String // e.g. "2h"
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  customerLat Float    @default(0.0)
+  customerLon Float    @default(0.0)
+  escrows     Escrow[]
 }
 
 model Escrow {
