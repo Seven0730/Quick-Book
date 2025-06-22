@@ -30,7 +30,9 @@ model Job {
   createdAt   DateTime @default(now())
   customerLat Float    @default(0.0)
   customerLon Float    @default(0.0)
+  acceptPrice Float?
   escrows     Escrow[]
+  Bid         Bid[]
 }
 
 model Escrow {
@@ -51,4 +53,19 @@ model Provider {
   lon       Float
   available Boolean  @default(true)
   createdAt DateTime @default(now())
+  Bid       Bid[]
+}
+
+model Bid {
+  id         Int      @id @default(autoincrement())
+  jobId      Int
+  providerId Int
+  price      Float
+  note       String?
+  createdAt  DateTime @default(now())
+
+  job      Job      @relation(fields: [jobId], references: [id])
+  provider Provider @relation(fields: [providerId], references: [id])
+
+  @@unique([jobId, providerId])
 }

@@ -4,6 +4,7 @@ import { categoriesRoutes } from './routes/categories';
 import { jobsRoutes } from './routes/jobs';
 import { escrowRoutes } from './routes/escrow';
 import { providersRoutes } from './routes/providers';
+import { bidsRoutes } from './routes/bids';
 import { initSocket } from './socket';
 
 async function start() {
@@ -15,6 +16,7 @@ async function start() {
     app.register(jobsRoutes, { prefix: '/jobs' });
     app.register(escrowRoutes, { prefix: '/escrow' });
     app.register(providersRoutes, { prefix: '/providers' });
+    app.register(bidsRoutes);
 
     await app.listen({ port: 4000 });
     app.log.info('HTTP server listening on http://localhost:4000');
