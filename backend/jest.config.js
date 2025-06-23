@@ -8,8 +8,11 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/tests'],
   testMatch: ['**/*.test.ts'],
-  moduleFileExtensions: ['ts', 'js', 'json', 'node'],
+  globalSetup: '<rootDir>/jest.global-setup.ts',
+  globalTeardown: '<rootDir>/jest.global-teardown.ts',
+  setupFiles: ['<rootDir>/jest.env.ts'],
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  clearMocks: true,
+  maxWorkers: 1,            // only one worker
+  testTimeout: 20000,
 };
