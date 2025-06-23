@@ -33,4 +33,11 @@ export const providerService = {
 
     delete: (id: number): Promise<Provider> =>
         providerRepository.delete(id),
+
+    async decrementCompleted(id: number): Promise<Provider> {
+        const prov = await providerRepository.findById(id);
+        if (!prov) throw new Error('Provider not found');
+        const newCount = Math.max(0, prov.completed - 1);
+        return providerRepository.update(id, { completed: newCount });
+    },
 };

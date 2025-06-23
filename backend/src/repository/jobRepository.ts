@@ -14,10 +14,17 @@ export const jobRepo = {
         prisma.job.update({ where: { id }, data }),
     delete: (id: number) => prisma.job.delete({ where: { id } }),
 
-    accept: async (id: number): Promise<boolean> => {
+    accept: async (id: number, providerId: number): Promise<boolean> => {
         const res = await prisma.job.updateMany({
             where: { id, status: 'PENDING' },
-            data: { status: 'BOOKED' },
+            data: { status: 'BOOKED', acceptedById: providerId },
+        });
+        return res.count === 1;
+    },
+    cancelByProvider: async (id: number, providerId: number): Promise<boolean> => {
+        const res = await prisma.job.updateMany({
+            where: { id, status: 'BOOKED', acceptedById: providerId },
+            data: { status: 'CANCELLED_BY_PROVIDER' },
         });
         return res.count === 1;
     },

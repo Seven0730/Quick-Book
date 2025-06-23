@@ -19,7 +19,7 @@ export const bidService = {
             throw new Error('Job not found');
         }
         if (job.acceptPrice != null && price <= job.acceptPrice) {
-            await jobService.accept(jobId);
+            await jobService.accept(jobId, providerId);
         }
 
         return bid;

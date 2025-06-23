@@ -67,10 +67,18 @@ export class JobController {
         reply: FastifyReply
     ) {
         const id = Number(req.params.id);
-        try {
-            const job = await jobService.accept(id);
 
-            // broadcast to all connected WebSocket clients
+        const providerHeader = req.headers['x-provider-id'];
+        const providerId = providerHeader ? Number(providerHeader) : NaN;
+        if (!providerHeader || isNaN(providerId)) {
+            return reply
+                .status(400)
+                .send({ error: 'Missing or invalid x-provider-id header' });
+        }
+
+        try {
+            const job = await jobService.accept(id, providerId);
+
             getIO().emit('job-booked', job);
 
             return reply.send(job);
@@ -82,4 +90,28 @@ export class JobController {
             return reply.status(500).send({ error: 'Internal Server Error' });
         }
     }
+    static async cancelByProvider(
+        req: FastifyRequest<{ Params: { id: string } }>,
+        reply: FastifyReply
+    ) {
+        const jobId = Number(req.params.id);
+        const providerId = Number(req.headers['x-provider-id']);
+        if (!providerId) {
+            return reply.status(400).send({ error: 'Missing provider id header' });
+        }
+
+        try {
+            const job = await jobService.cancelByProvider(jobId, providerId);
+            // broadcast cancellation to all connected WebSocket clients
+            getIO().emit('job-cancelled', { jobId: job.id, by: 'provider' });
+            return reply.send(job);
+        } catch (err: any) {
+            if (err.message === 'Cannot cancel job') {
+                return reply.status(409).send({ error: err.message });
+            }
+            req.log.error(err);
+            return reply.status(500).send({ error: 'Internal Server Error' });
+        }
+    }
+
 }

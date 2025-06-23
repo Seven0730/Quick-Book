@@ -21,18 +21,20 @@ model Category {
 }
 
 model Job {
-  id          Int      @id @default(autoincrement())
-  categoryId  Int
-  category    Category @relation(fields: [categoryId], references: [id])
-  price       Float
-  timeslot    String // e.g. "2h"
-  status      String   @default("PENDING")
-  createdAt   DateTime @default(now())
-  customerLat Float    @default(0.0)
-  customerLon Float    @default(0.0)
-  acceptPrice Float?
-  escrows     Escrow[]
-  Bid         Bid[]
+  id           Int       @id @default(autoincrement())
+  categoryId   Int
+  category     Category  @relation(fields: [categoryId], references: [id])
+  price        Float
+  timeslot     String // e.g. "2h"
+  status       String    @default("PENDING")
+  createdAt    DateTime  @default(now())
+  customerLat  Float     @default(0.0)
+  customerLon  Float     @default(0.0)
+  acceptPrice  Float?
+  acceptedById Int?
+  acceptedBy   Provider? @relation(fields: [acceptedById], references: [id])
+  escrows      Escrow[]
+  Bid          Bid[]
 }
 
 model Escrow {
@@ -54,6 +56,7 @@ model Provider {
   available Boolean  @default(true)
   createdAt DateTime @default(now())
   Bid       Bid[]
+  Job       Job[]
 }
 
 model Bid {
