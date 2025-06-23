@@ -30,4 +30,12 @@ export class BidController {
             throw err;
         }
     }
+    static async topBids(
+        req: FastifyRequest<{ Params: { jobId: string } }>,
+        reply: FastifyReply
+    ) {
+        const jobId = Number(req.params.jobId);
+        const top3 = await bidService.topBids(jobId);
+        return reply.send(top3);
+    }
 }

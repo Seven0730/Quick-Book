@@ -6,7 +6,7 @@ export const bidRepository = {
     listByJob: (jobId: number) =>
         prisma.bid.findMany({
             where: { jobId },
-            include: { provider: true }
+            include: { provider: true, job: true, }
         }),
     findByJobAndProvider: (jobId: number, providerId: number) =>
         prisma.bid.findUnique({ where: { jobId_providerId: { jobId, providerId } } })
