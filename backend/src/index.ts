@@ -12,6 +12,24 @@ async function start() {
     const app = Fastify({ logger: true });
     await app.register(cors, { origin: '*' });
 
+    await app.register(import('@fastify/swagger'))
+
+    await app.register(import('@fastify/swagger-ui'), {
+        routePrefix: '/documentation',
+        uiConfig: {
+            docExpansion: 'full',
+            deepLinking: false
+        },
+        uiHooks: {
+            onRequest: function (request, reply, next) { next() },
+            preHandler: function (request, reply, next) { next() }
+        },
+        staticCSP: true,
+        transformStaticCSP: (header) => header,
+        transformSpecification: (swaggerObject, request, reply) => { return swaggerObject },
+        transformSpecificationClone: true
+    })
+    
     app.register(categoriesRoutes, { prefix: '/categories' });
     app.register(jobsRoutes, { prefix: '/jobs' });
     app.register(escrowRoutes, { prefix: '/escrow' });
