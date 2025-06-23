@@ -12,11 +12,25 @@ export class CategoryController {
         if (!item) return reply.status(404).send('Not found');
         reply.send(item);
     }
-    static async create(req: FastifyRequest, reply: FastifyReply) {
-        const { name } = req.body as { name: string };
-        const item = await categoryService.create(name);
-        reply.status(201).send(item);
+static async create(
+    req: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    const { name } = req.body as { name: string };
+    try {
+      const cat = await categoryService.create(name);
+      return reply.status(201).send(cat);
+    } catch (err: any) {
+      if (
+        err.code === 'P2002'
+      ) {
+        return reply
+          .status(409)
+          .send({ error: 'Category already exists' });
+      }
+      return reply.status(500).send({ error: 'Internal Server Error' });
     }
+  }
     static async update(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         const id = Number(req.params.id);
         const { name } = req.body as { name: string };

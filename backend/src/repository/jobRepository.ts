@@ -1,6 +1,6 @@
 import prisma from '../../lib/prisma';
 
-export const jobRepo = {
+export const jobRepository = {
     findAll: () => prisma.job.findMany({ include: { category: true } }),
     findById: (id: number) => prisma.job.findUnique({ where: { id }, include: { category: true } }),
     create: (data: {

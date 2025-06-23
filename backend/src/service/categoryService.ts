@@ -1,9 +1,9 @@
-import { categoryRepo } from '../repository/categoryRepository';
+import { categoryRepository} from '../repository/categoryRepository';
 
 export const categoryService = {
-    list: () => categoryRepo.findAll(),
-    get: (id: number) => categoryRepo.findById(id),
-    create: (name: string) => categoryRepo.create(name),
-    update: (id: number, name: string) => categoryRepo.update(id, name),
-    delete: (id: number) => categoryRepo.delete(id),
+    list: () => categoryRepository.findAll(),
+    get: (id: number) => categoryRepository.findById(id),
+    create: (name: string) => categoryRepository.create(name),
+    update: (id: number, name: string) => categoryRepository.update(id, name),
+    delete: (id: number) => categoryRepository.delete(id),
 };

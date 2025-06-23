@@ -1,6 +1,6 @@
 import prisma from '../../lib/prisma';
 
-export const categoryRepo = {
+export const categoryRepository = {
     findAll: () => prisma.category.findMany(),
     findById: (id: number) => prisma.category.findUnique({ where: { id } }),
     create: (name: string) => prisma.category.create({ data: { name } }),
