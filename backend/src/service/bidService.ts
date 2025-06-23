@@ -61,9 +61,19 @@ export const bidService = {
             const score = 0.5 * pNorm + 0.3 * rNorm + 0.2 * eNorm;
             return { ...b, score };
         });
-        
+
         // sort by score ascending
         scored.sort((a, b) => a.score - b.score);
         return scored.slice(0, 3);
+    },
+
+    selectBid: async (jobId: number, bidId: number): Promise<import("@prisma/client").Job> => {
+        const bid: (Bid & { job: { id: number }; provider: { id: number } }) | null =
+            await bidRepository.findById(bidId);
+        if (!bid || bid.job.id !== jobId) {
+            throw new Error('Bid not found for this job');
+        }
+        const job = await jobService.accept(jobId, bid.provider.id);
+        return job;
     },
 };

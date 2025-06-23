@@ -5,4 +5,5 @@ export async function bidsRoutes(app: FastifyInstance) {
     app.get('/jobs/:jobId/bids', BidController.list);
     app.post('/jobs/:jobId/bids', BidController.create);
     app.get('/jobs/:jobId/top-bids', BidController.topBids);
+    app.post('/jobs/:jobId/bids/:bidId/select', BidController.selectBid);
 }

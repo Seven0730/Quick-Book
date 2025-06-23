@@ -9,5 +9,11 @@ export const bidRepository = {
             include: { provider: true, job: true, }
         }),
     findByJobAndProvider: (jobId: number, providerId: number) =>
-        prisma.bid.findUnique({ where: { jobId_providerId: { jobId, providerId } } })
+        prisma.bid.findUnique({ where: { jobId_providerId: { jobId, providerId } } }),
+    
+    findById: (bidId: number) =>
+        prisma.bid.findUnique({
+            where: { id: bidId },
+            include: { provider: true, job: true },
+        }),
 };

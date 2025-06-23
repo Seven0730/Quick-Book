@@ -38,4 +38,30 @@ export class BidController {
         const top3 = await bidService.topBids(jobId);
         return reply.send(top3);
     }
+    static async selectBid(
+        req: FastifyRequest<{
+            Params: { jobId: string; bidId: string };
+        }>,
+        reply: FastifyReply
+    ) {
+        const jobId = Number(req.params.jobId);
+        const bidId = Number(req.params.bidId);
+
+        try {
+            const job = await bidService.selectBid(jobId, bidId);
+
+            getIO().emit('job-booked', job);
+
+            return reply.send(job);
+        } catch (err: any) {
+            if (err.message === 'Bid not found for this job') {
+                return reply.status(404).send({ error: err.message });
+            }
+            if (err.message === 'Job already taken') {
+                return reply.status(409).send({ error: err.message });
+            }
+            req.log.error(err);
+            return reply.status(500).send({ error: 'Internal Server Error' });
+        }
+    }
 }
