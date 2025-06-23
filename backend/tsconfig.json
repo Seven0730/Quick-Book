@@ -12,12 +12,14 @@
     "noEmit": false,
     "isolatedModules": true,
     "incremental": true,
+    "types": ["node", "jest"],
     "paths": {
       "@/*": ["./src/*"]
     }
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "tests/**/*.ts", 
   ],
   "exclude": ["node_modules", "dist"]
 }
