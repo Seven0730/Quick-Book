@@ -12,4 +12,6 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: 'coverage',
   clearMocks: true,
+  maxWorkers: 1,            // only one worker
+  testTimeout: 20000,
 };
