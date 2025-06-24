@@ -1,18 +1,19 @@
 'use client';
 import { useState } from 'react';
-import { CategorySelect }      from '@/components/CategorySelect';
-import { PriceSlider }         from '@/components/PriceSlider';
-import { TimeslotPicker }      from '@/components/TimeslotPicker';
-import { fetcher }             from '@/lib/api';
-import type { Job }            from '@/types';
+import { CategorySelect } from '@/components/CategorySelect';
+import { PriceSlider } from '@/components/PriceSlider';
+import { TimeslotPicker } from '@/components/TimeslotPicker';
+import { fetcher } from '@/lib/api';
+import type { Job } from '@/types';
+import { JobStatusToast } from '@/components/JobStatusToast';
 
 export default function QuickBookPage() {
-  const [catId,   setCatId]    = useState<number>();
-  const [price,   setPrice]    = useState<number>(0);
-  const [slot,    setSlot]     = useState<string>();
+  const [catId, setCatId] = useState<number>();
+  const [price, setPrice] = useState<number>(0);
+  const [slot, setSlot] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
-  const [job,     setJob]      = useState<Job | null>(null);
-  const [error,   setError]    = useState<string>();
+  const [job, setJob] = useState<Job | null>(null);
+  const [error, setError] = useState<string>();
 
   // For now, stub customer location
   const customerLat = 1.3521;
@@ -47,8 +48,11 @@ export default function QuickBookPage() {
     return (
       <div className="max-w-md mx-auto p-4">
         <h2 className="text-xl font-bold mb-2">Booking Submitted!</h2>
-        <p>Your job is now pending. Job ID: <strong>{job.id}</strong></p>
+        <p>Job ID: <strong>{job.id}</strong></p>
         <p>Status: <em>{job.status}</em></p>
+
+        {/* WATCH FOR REAL-TIME UPDATES: */}
+        <JobStatusToast jobId={job.id} />
       </div>
     );
   }

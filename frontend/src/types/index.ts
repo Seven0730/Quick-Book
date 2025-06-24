@@ -19,5 +19,6 @@ export interface Job {
     acceptedById: number | null;
     customerLat: number;
     customerLon: number;
+    description?: string;
     createdAt: string;
 }
