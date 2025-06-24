@@ -1,17 +1,18 @@
 import './globals.css';
-import { ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ClientProviders } from '@/components/ClientProviders';
+import type { ReactNode } from 'react';
 
-const queryClient = new QueryClient()
-
-export default function RootLayout({ children }: { children: ReactNode }) {
-
+export default function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <html lang="en">
       <body>
-        <QueryClientProvider client={queryClient}>
+        <ClientProviders>
           {children}
-        </QueryClientProvider>
+        </ClientProviders>
       </body>
     </html>
   );
