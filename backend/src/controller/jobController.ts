@@ -113,5 +113,20 @@ export class JobController {
             return reply.status(500).send({ error: 'Internal Server Error' });
         }
     }
-
+    static async priceGuidance(
+        req: FastifyRequest,
+        reply: FastifyReply
+    ) {
+        const categoryId = Number((req.query as any).categoryId);
+        if (!categoryId) {
+            return reply.status(400).send({ error: 'Invalid categoryId' });
+        }
+        try {
+            const result = await jobService.priceGuidance(categoryId);
+            return reply.send(result);
+        } catch (err: any) {
+            req.log.error(err);
+            return reply.status(500).send({ error: 'Internal Server Error' });
+        }
+    }
 }

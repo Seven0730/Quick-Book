@@ -9,4 +9,5 @@ export async function jobsRoutes(app: FastifyInstance) {
     app.delete('/:id', JobController.delete);
     app.post('/:id/accept', JobController.accept);
     app.post('/:id/cancel-by-provider', JobController.cancelByProvider);
+    app.get('/price-guidance', JobController.priceGuidance);
 }

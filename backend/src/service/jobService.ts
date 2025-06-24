@@ -6,6 +6,7 @@ import { providerService } from './providerService';
 import { getIO, providerSockets } from '../socket';
 import { haversine } from '../utils/haversine';
 import { Job } from '@prisma/client';
+import { PriceGuidance } from '../schemas/PriceGuidance';
 
 const STAGE1_RADIUS_KM = 3;
 const STAGE2_RADIUS_KM = 10;
@@ -50,6 +51,15 @@ async function broadcastStage(job: Job, stage: 1 | 2 | 3) {
             io.to(info.socketId).emit('new-job', job);
         }
     }
+}
+
+function percentile(sorted: number[], p: number): number {
+    if (sorted.length === 0) return 0;
+    const idx = p * (sorted.length - 1);
+    const lo = Math.floor(idx);
+    const hi = Math.ceil(idx);
+    const weight = idx - lo;
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * weight;
 }
 
 export const jobService = {
@@ -113,7 +123,6 @@ export const jobService = {
         return job;
     },
 
-
     async cancelByProvider(id: number, providerId: number): Promise<Job> {
         const ok = await jobRepository.cancelByProvider(id, providerId);
         if (!ok) throw new Error('Cannot cancel job');
@@ -123,5 +132,15 @@ export const jobService = {
         const job = await jobRepository.findById(id);
         if (!job) throw new Error('Job not found after cancel');
         return job;
+    },
+
+    priceGuidance: async (categoryId: number): Promise<PriceGuidance> => {
+        const prices = await jobRepository.findCompletedPricesByCategory(categoryId);
+        const sorted = prices.sort((a, b) => a - b);
+        return {
+            p10: percentile(sorted, 0.10),
+            p50: percentile(sorted, 0.50),
+            p90: percentile(sorted, 0.90),
+        };
     },
 };

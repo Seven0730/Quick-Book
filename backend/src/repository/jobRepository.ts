@@ -28,4 +28,16 @@ export const jobRepository = {
         });
         return res.count === 1;
     },
+    findCompletedPricesByCategory: async (categoryId: number): Promise<number[]> => {
+        const records = await prisma.job.findMany({
+            where: {
+                categoryId,
+                status: 'COMPLETED',
+            },
+            select: {
+                price: true,
+            },
+        });
+        return records.map(r => r.price);
+    },
 };
