@@ -9,3 +9,15 @@ export interface PriceGuidance {
     p50: number;
     p90: number;
 }
+export interface Job {
+    id: number;
+    categoryId: number;
+    price: number;
+    timeslot: string;
+    status: string;
+    acceptPrice: number | null;
+    acceptedById: number | null;
+    customerLat: number;
+    customerLon: number;
+    createdAt: string;
+}
