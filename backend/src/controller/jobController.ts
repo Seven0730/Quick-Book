@@ -5,9 +5,13 @@ import { getIO, providerSockets } from '../socket';
 import { haversine } from '../utils/haversine';
 
 export class JobController {
-    static async list(req: FastifyRequest, reply: FastifyReply) {
-        const data = await jobService.list();
-        reply.send(data);
+    static async list(
+        req: FastifyRequest<{ Querystring: { status?: string } }>,
+        reply: FastifyReply
+    ) {
+        const status = req.query.status;
+        const jobs = await jobService.list(status);
+        return reply.send(jobs);
     }
     static async get(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         const id = Number(req.params.id);
