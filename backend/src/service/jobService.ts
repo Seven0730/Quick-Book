@@ -24,6 +24,8 @@ async function broadcastStage(job: Job, stage: 1 | 2 | 3) {
     const io = getIO();
     const providers = await providerService.list();
 
+    console.log('💡 providerSockets map:', Array.from(providerSockets.entries()));
+
     for (const p of providers) {
         const info = providerSockets.get(p.id);
         if (!info) continue;
@@ -63,12 +65,16 @@ function percentile(sorted: number[], p: number): number {
 }
 
 export const jobService = {
-    list: () => jobRepository.findAll(),
+    list: (status?: string): Promise<Job[]> => {
+        return jobRepository.findAll(status);
+    },
     get: (id: number) => jobRepository.findById(id),
     create: async (payload: {
         categoryId: number;
         price: number;
         timeslot: string;
+        description?: string;
+        acceptPrice?: number;
         customerLat: number;
         customerLon: number;
     }): Promise<Job> => {
@@ -76,31 +82,47 @@ export const jobService = {
 
         await escrowService.hold(job.id, job.price);
 
-        // broadcast in 3 stages
-        // Stage 1
-        if (!isTest) {
-            setTimeout(async () => {
-                const fresh = await jobRepository.findById(job.id);
-                if (fresh?.status === 'PENDING') {
-                    await broadcastStage(fresh, 1);
-                }
-            }, STAGE1_DELAY_MS);
+        if (payload.acceptPrice == null) {
+            getIO().emit('new-job', job);
 
-            // Stage 2
+            // SCHEDULE 30s DESTROY  
             setTimeout(async () => {
+                // refetch fresh
                 const fresh = await jobRepository.findById(job.id);
                 if (fresh?.status === 'PENDING') {
-                    await broadcastStage(fresh, 2);
+                    // mark destroyed
+                    const dead = await jobRepository.update(job.id, { status: 'DESTROYED' });
+                    // notify customer & providers
+                    getIO().emit('job-destroyed', { jobId: dead.id });
                 }
-            }, STAGE2_DELAY_MS);
+            }, 30_000);
+        } else {
+            // broadcast in 3 stages
+            // Stage 1
+            if (!isTest) {
+                setTimeout(async () => {
+                    const fresh = await jobRepository.findById(job.id);
+                    if (fresh?.status === 'PENDING') {
+                        await broadcastStage(fresh, 1);
+                    }
+                }, STAGE1_DELAY_MS);
 
-            // Stage 3
-            setTimeout(async () => {
-                const fresh = await jobRepository.findById(job.id);
-                if (fresh?.status === 'PENDING') {
-                    await broadcastStage(fresh, 3);
-                }
-            }, STAGE3_DELAY_MS);
+                // Stage 2
+                setTimeout(async () => {
+                    const fresh = await jobRepository.findById(job.id);
+                    if (fresh?.status === 'PENDING') {
+                        await broadcastStage(fresh, 2);
+                    }
+                }, STAGE2_DELAY_MS);
+
+                // Stage 3
+                setTimeout(async () => {
+                    const fresh = await jobRepository.findById(job.id);
+                    if (fresh?.status === 'PENDING') {
+                        await broadcastStage(fresh, 3);
+                    }
+                }, STAGE3_DELAY_MS);
+            }
         }
         return job;
     },

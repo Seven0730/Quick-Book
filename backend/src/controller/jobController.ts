@@ -11,12 +11,13 @@ export class JobController {
     ) {
         const status = req.query.status;
         const jobs = await jobService.list(status);
-        return reply.send(jobs);
+        const visible = jobs.filter(j => j.status !== 'DESTROYED');
+        return reply.send(visible);
     }
     static async get(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         const id = Number(req.params.id);
         const item = await jobService.get(id);
-        if (!item) return reply.status(404).send('Not found');
+        if (!item || item.status == 'DESTROYED') return reply.status(404).send('Not found');
         reply.send(item);
     }
 
