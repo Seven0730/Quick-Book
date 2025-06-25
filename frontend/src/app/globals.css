@@ -1,5 +1,1 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* your global overrides here */
+@import "tailwindcss";

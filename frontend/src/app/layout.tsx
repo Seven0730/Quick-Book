@@ -1,17 +1,19 @@
 import './globals.css';
-import { ClientProviders } from '@/components/ClientProviders';
 import type { ReactNode } from 'react';
+import { ModuleLayout } from '@/components/ModuleLayout';
+import { ClientProviders } from '@/components/ClientProviders';
+import { ProviderContextProvider } from '@/contexts/ProviderContext';
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning>
+      <body>
         <ClientProviders>
-          {children}
+          <ProviderContextProvider>
+            <ModuleLayout>
+              {children}
+            </ModuleLayout>
+          </ProviderContextProvider>
         </ClientProviders>
       </body>
     </html>

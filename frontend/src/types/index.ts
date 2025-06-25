@@ -22,3 +22,11 @@ export interface Job {
     description?: string;
     createdAt: string;
 }
+export interface Bid {
+    id: number;
+    jobId: number;
+    providerId: number;
+    price: number;
+    note: string;
+    createdAt: string;
+}
