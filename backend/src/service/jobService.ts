@@ -140,7 +140,11 @@ export const jobService = {
         const job = await jobRepository.findById(id);
         if (!job) throw new Error('Job not found');
         if (!isTest) {
-            await escrowService.hold(job.id, job.price);
+            try {
+                await escrowService.hold(job.id, job.price);
+            } catch (err: any) {
+                if (err.message !== 'Already held') throw err;
+            }
         }
         return job;
     },

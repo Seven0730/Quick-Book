@@ -1,11 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useSocket }           from '@/lib/hooks/useSocket';
+import { useAppSocket } from '@/lib/hooks/useAppSocket';
 
 interface Props { jobId: number }
 
 export function JobStatusToast({ jobId }: Props) {
-  const { socket, connected } = useSocket();
+  const { socket } = useAppSocket();
   const [message, setMessage] = useState<string>();
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export function JobStatusToast({ jobId }: Props) {
       }
     };
 
-    socket.on('job-booked',   onBooked);
+    socket.on('job-booked', onBooked);
     socket.on('job-cancelled', onCancelled);
 
     return () => {

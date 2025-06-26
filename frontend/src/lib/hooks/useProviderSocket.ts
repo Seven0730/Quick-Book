@@ -5,7 +5,7 @@ import { useProviderContext } from '@/contexts/ProviderContext';
 
 let socket: Socket | null = null;
 
-export function useSocket() {
+export function useProviderSocket() {
     const { providerId } = useProviderContext();
     const [ready, setReady] = useState(false);
 
@@ -13,7 +13,7 @@ export function useSocket() {
         // only init once we have a providerId
         if (!socket && providerId != null) {
             socket = io(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000', {
-                query: { providerId }    // <-- send it here
+                query: { providerId }
             });
             (window as any).socket = socket;
             socket.on('connect', () => {
@@ -30,9 +30,6 @@ export function useSocket() {
             });
         }
         return () => {
-            // optionally tear down if providerId changes
-            // socket?.disconnect();
-            // socket = null;
         };
     }, [providerId]);
 

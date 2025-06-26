@@ -1,9 +1,10 @@
 'use client';
-import { useState, useEffect }  from 'react';
-import { useTopBids }           from '@/lib/hooks/useTopBids';
-import { useSocket }            from '@/lib/hooks/useSocket';
-import { fetcher }              from '@/lib/api';
-import type { Bid }             from '@/types';
+import { useState, useEffect } from 'react';
+import { useTopBids } from '@/lib/hooks/useTopBids';
+import { useAppSocket } from '@/lib/hooks/useAppSocket';
+import { fetcher } from '@/lib/api';
+import type { Bid } from '@/types';
+import { useSelectBid } from '@/hooks/customer/bids';
 
 interface Props {
   jobId: number;
@@ -13,7 +14,8 @@ interface Props {
 
 export function BidList({ jobId, acceptPrice, onHired }: Props) {
   const { data: bids, isLoading, error, refetch } = useTopBids(jobId);
-  const { socket } = useSocket();
+  const selectBid = useSelectBid(jobId);
+  const { socket } = useAppSocket();
   const [autoHired, setAutoHired] = useState<boolean>(false);
 
   // real-time: when any provider bids, refetch
@@ -39,7 +41,7 @@ export function BidList({ jobId, acceptPrice, onHired }: Props) {
   }
 
   if (isLoading) return <p>Loading bids…</p>;
-  if (error)     return <p className="text-red-500">Error: {error.message}</p>;
+  if (error) return <p className="text-red-500">Error: {error.message}</p>;
   if (!bids || bids.length === 0) return <p>No bids yet. Waiting…</p>;
 
   return (

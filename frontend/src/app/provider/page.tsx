@@ -3,19 +3,17 @@ import { useState, useEffect } from 'react';
 import type { Job } from '@/types';
 import { usePendingJobs } from '@/hooks/provider/usePendingJobs';
 import { usePostBid } from '@/hooks/provider/usePostBid';
-import { useSocket } from '@/lib/hooks/useSocket';
+import { useAppSocket } from '@/lib/hooks/useAppSocket';
 import { useProviderContext } from '@/contexts/ProviderContext';
 
 export default function ProviderDashboardPage() {
     const { providerId, setProviderId } = useProviderContext();
     const { data: initialJobs = [], isLoading, error, refetch } = usePendingJobs();
     const postBidMutation = usePostBid();
-    const { socket, ready } = useSocket();
+    const { socket, ready } = useAppSocket();
 
-    // Local state for jobs so we can append real-time
     const [jobs, setJobs] = useState<Job[]>(initialJobs);
 
-    // Whenever initialJobs changes (on load or refetch), sync our state
     useEffect(() => {
         setJobs(initialJobs);
     }, [initialJobs]);
@@ -25,7 +23,8 @@ export default function ProviderDashboardPage() {
         if (!socket || !ready) return;
         const onNewJob = (job: Job) => {
             if (job.status !== 'PENDING') return;
-            setJobs(prev => {                if (prev.some(j => j.id === job.id)) {
+            setJobs(prev => {
+                if (prev.some(j => j.id === job.id)) {
                     return prev;
                 }
                 return [job, ...prev];
