@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import rateLimit from '@fastify/rate-limit'
 import { categoriesRoutes } from './routes/categories';
 import { jobsRoutes } from './routes/jobs';
 import { escrowRoutes } from './routes/escrow';
@@ -11,6 +12,19 @@ async function start() {
 
     const app = Fastify({ logger: true });
     await app.register(cors, { origin: '*' });
+
+    await app.register(rateLimit, {
+        max: 10,
+        timeWindow: '1 minute',
+        errorResponseBuilder: (_req, context) => ({
+            statusCode: 429,
+            error: 'Too Many Requests',
+            message: `You can only make ${context.max} requests in ${context.after}`,
+        })
+    }), {
+        prefix: '/jobs',
+        methods: ['POST', 'PUT', 'DELETE']
+    }
 
     await app.register(import('@fastify/swagger'))
 
@@ -29,7 +43,7 @@ async function start() {
         transformSpecification: (swaggerObject, request, reply) => { return swaggerObject },
         transformSpecificationClone: true
     })
-    
+
     app.register(categoriesRoutes, { prefix: '/categories' });
     app.register(jobsRoutes, { prefix: '/jobs' });
     app.register(escrowRoutes, { prefix: '/escrow' });
