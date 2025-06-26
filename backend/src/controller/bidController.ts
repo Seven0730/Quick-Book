@@ -11,6 +11,33 @@ export class BidController {
         reply.send(bids);
     }
 
+    static async findById(
+        req: FastifyRequest<{ Params: { bidId: string } }>,
+        reply: FastifyReply
+    ) {
+        const bidId = Number(req.params.bidId);
+        if (isNaN(bidId)) {
+            return reply.status(400).send({ error: 'Invalid bidId' });
+        }
+        const bid = await bidService.findById(bidId);
+        if (!bid) {
+            return reply.status(404).send({ error: 'Bid not found' });
+        }
+        reply.send(bid);
+    }
+
+    static async listByProvider(
+        req: FastifyRequest<{ Params: { providerId: string } }>,
+        reply: FastifyReply
+    ) {
+        const pid = Number(req.params.providerId)
+        if (isNaN(pid)) {
+            return reply.status(400).send({ error: 'Invalid providerId' })
+        }
+        const bids = await bidService.listByProvider(pid)
+        reply.send(bids)
+    }
+
     static async create(
         this: FastifyInstance,
         req: FastifyRequest<{ Params: { jobId: string }; Body: { providerId: number; price: number; note?: string } }>,

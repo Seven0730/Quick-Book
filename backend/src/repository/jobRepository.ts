@@ -46,4 +46,19 @@ export const jobRepository = {
         });
         return records.map(r => r.price);
     },
+    findByProvider: (providerId: number) =>
+        prisma.bid.findMany({
+            where: { providerId },
+            include: {
+                job: {
+                    select: {
+                        id: true,
+                        status: true,
+                        acceptedById: true,
+                        price: true,
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        }),
 };

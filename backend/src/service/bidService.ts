@@ -14,6 +14,12 @@ export const bidService = {
     list: (jobId: number): Promise<Bid[]> =>
         bidRepository.listByJob(jobId),
 
+    listByProvider: (providerId: number) =>
+        bidRepository.findByProvider(providerId),
+
+    findById: (bidId: number): Promise<Bid | null> =>
+        bidRepository.findById(bidId),
+
     create: async (jobId: number, providerId: number, price: number, note?: string): Promise<Bid> => {
 
         const existing = await bidRepository.findByJobAndProvider(jobId, providerId);

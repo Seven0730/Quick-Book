@@ -19,4 +19,20 @@ export const bidRepository = {
 
     deleteByJobId: (jobId: number) =>
         prisma.bid.deleteMany({ where: { jobId } }),
+
+    findByProvider: (providerId: number) =>
+        prisma.bid.findMany({
+            where: { providerId },
+            include: {
+                job: {
+                    select: {
+                        id: true,
+                        status: true,
+                        acceptedById: true,
+                        price: true,
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' },
+        }),
 };
