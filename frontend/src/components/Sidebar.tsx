@@ -11,6 +11,7 @@ const modules = [
     children: [
       { label: 'Quick-Book', path: '/customer/quick-book' },
       { label: 'Post & Quote', path: '/customer/post-quote' },
+      { label: 'History', path: '/customer/history' },
     ] as SubLink[],
   },
   {
@@ -19,6 +20,7 @@ const modules = [
     children: [
       { label: 'Quick-Book', path: '/provider/quick-book' },
       { label: 'Post & Quote', path: '/provider/post-quote' },
+      { label: 'History', path: '/provider/history' },
     ] as SubLink[],
   },
 ];

@@ -42,15 +42,20 @@ export default function ProviderQuickBookPage() {
 
     if (providerId == null) {
         return (
-            <div className="p-4">
-                <h1>Enter Provider ID</h1>
+            <div className="max-w-sm mx-auto p-4 space-y-4">
+                <h1 className="text-xl font-bold">Provider Login</h1>
                 <input
                     type="number"
-                    onKeyDown={e => {
-                        if (e.key === 'Enter') setProviderId(Number((e.target as any).value));
+                    placeholder="Enter your providerId"
+                    className="w-full border p-2 rounded"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            const val = Number((e.target as HTMLInputElement).value);
+                            if (!isNaN(val)) setProviderId(val);
+                        }
                     }}
-                    className="border p-2 rounded"
                 />
+                <p className="text-sm text-gray-600">Press Enter to connect</p>
             </div>
         );
     }

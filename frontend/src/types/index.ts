@@ -23,10 +23,18 @@ export interface Job {
     createdAt: string;
 }
 export interface Bid {
-    id: number;
-    jobId: number;
-    providerId: number;
-    price: number;
-    note: string;
-    createdAt: string;
+  id:           number
+  jobId:        number
+  providerId:   number
+  price:        number
+  note?:        string
+  createdAt:    string
+  updatedAt:    string
+
+  job: {
+    id:            number
+    status:        'PENDING' | 'BOOKED' | 'CANCELLED_BY_PROVIDER' | 'DESTROYED'
+    acceptedById?: number | null
+    price:         number
+  }
 }

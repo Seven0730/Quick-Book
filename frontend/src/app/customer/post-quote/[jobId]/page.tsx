@@ -1,94 +1,125 @@
 'use client';
+
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useJob } from '@/hooks/customer/jobs';
-import { useTopBids } from '@/hooks/customer/useTopBids';
-import { useAppSocket } from '@/lib/hooks/useAppSocket';
-import { fetcher } from '@/lib/api';
-import { toast } from 'react-hot-toast';
-import type { Bid, Job } from '@/types';
+import { useEffect, useState }    from 'react';
+import { useJob }                  from '@/hooks/customer/jobs';
+import { useTopBids }              from '@/hooks/customer/useTopBids';
+import { fetcher }                 from '@/lib/api';
+import { toast }                   from 'react-hot-toast';
+import type { Job, Bid }           from '@/types';
+
+const STAGE1 = 5 * 60;   // 5 minutes in seconds
+const STAGE2 = 15 * 60;  // 15 minutes total
 
 export default function CustomerPostQuoteWaitingPage() {
-    const router = useRouter();
-    const jobId = Number(usePathname()!.split('/').pop());
-    const { data: job, isLoading, error, refetch: refetchJob } = useJob(jobId);
-    const { data: topBids = [] } = useTopBids(jobId);
-    const { socket, ready } = useAppSocket();
+  const router = useRouter();
+  const jobId  = Number(usePathname()!.split('/').pop());
+  const { data: job, isLoading: jl, error: je, refetch: refetchJob } = useJob(jobId);
+  const { data: topBids = [], refetch: refetchBids } = useTopBids(jobId);
 
-    const [biddingDone, setBiddingDone] = useState(false);
+  const [elapsed,    setElapsed]    = useState(0);
+  const [stage,      setStage]      = useState<1|2|3>(1);
+  const [stageDone,  setStageDone]  = useState(false);
 
-    useEffect(() => {
-        if (!socket || !ready) return;
+  // TICK every second
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setElapsed(e => e + 1);
+    }, 1000);
+    return () => clearInterval(iv);
+  }, []);
 
-        const onBidReceived = (payload: { bid: Bid }) => {
-            if (payload.bid.jobId === jobId) {
-                toast(`New bid: $${payload.bid.price.toFixed(2)}`, { icon: '💬' });
-            }
-        };
-        const onBooked = (updated: Job) => {
-            if (updated.id === jobId) {
-                toast.success('Auto-hired! Provider on the way 🚀');
-                router.push(`/customer/post-quote/${jobId}/accepted`);
-            }
-        };
-        const onWaveComplete = (payload: { jobId: number }) => {
-            if (payload.jobId === jobId) {
-                setBiddingDone(true);
-                toast(`Bidding complete – choose from top 3!`, { icon: '🗳️' });
-            }
-        };
-
-        socket.on('bid-received', onBidReceived);
-        socket.on('job-booked', onBooked);
-        socket.on('bidding-complete', onWaveComplete);
-
-        return () => {
-            socket.off('bid-received', onBidReceived);
-            socket.off('job-booked', onBooked);
-            socket.off('bidding-complete', onWaveComplete);
-        };
-    }, [socket, ready, jobId, router]);
-
-    if (isLoading) return <p>Loading…</p>;
-    if (error) return <p className="text-red-500">Error loading job</p>;
-    if (!job) return <p>Job not found</p>;
-
-    if (!biddingDone) {
-        return (
-            <div className="max-w-md mx-auto p-4 space-y-4">
-                <h2 className="text-xl font-bold">Waiting for bids…</h2>
-                <p>Your providers have three waves (3km / 10km / all) to submit bid.</p>
-                <p><strong>Status:</strong> {job.status}</p>
-            </div>
-        );
+  // DETERMINE stage from elapsed
+  useEffect(() => {
+    if (elapsed < STAGE1) {
+      setStage(1);
+    } else if (elapsed < STAGE2) {
+      setStage(2);
+    } else {
+      setStage(3);
+      setStageDone(true);
     }
+  }, [elapsed]);
 
-    // Bidding done — show top 3 quotes for manual accept
+  // When stage changes, toast
+  useEffect(() => {
+    if (stage === 2) toast('Wave 2 started!', { icon: '📢' });
+    if (stage === 3) toast('Final wave: open bidding!', { icon: '⚡' });
+  }, [stage]);
+
+  // If wave 3 is done, fetch top bids
+  useEffect(() => {
+    if (stageDone) {
+      refetchBids();
+    }
+  }, [stageDone, refetchBids]);
+
+  // Poll job status too (in case auto-hire happens)
+  useEffect(() => {
+    const iv2 = setInterval(() => {
+      refetchJob();
+    }, 5000);
+    return () => clearInterval(iv2);
+  }, [refetchJob]);
+
+  if (jl)        return <p>Loading job…</p>;
+  if (je)        return <p className="text-red-500">Error: {je.message}</p>;
+  if (!job)      return <p>Job not found</p>;
+  if (job.status == 'BOOKED') {
+    router.push(`/customer/post-quote/${jobId}/accepted`);
+    return null;
+  }
+
+  // --- STILL IN BIDDING ---
+  if (!stageDone) {
+    const remaining = (stage === 1 ? STAGE1 : STAGE2) - elapsed;
+    const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
+    const ss = String(remaining % 60).padStart(2, '0');
+
     return (
-        <div className="max-w-md mx-auto p-4 space-y-4">
-            <h2 className="text-xl font-bold">Select a Quote</h2>
-            {topBids.map(bid => (
-                <div key={bid.id} className="border p-3 rounded space-y-1">
-                    <p>Provider #{bid.providerId} — ${bid.price.toFixed(2)}</p>
-                    <p className="text-sm text-gray-600">{bid.note}</p>
-                    <button
-                        onClick={async () => {
-                            try {
-                                await fetcher<Job>(`/jobs/${jobId}/bids/${bid.id}/select`, {
-                                    method: 'POST',
-                                });
-                                toast.success('You hired this provider! 🎉');
-                                router.push(`/customer/post-quote/${jobId}/accepted`);
-                            } catch (e: any) {
-                                toast.error(`Select failed: ${e.message}`);
-                            }
-                        }}
-                        className="px-3 py-1 bg-green-600 text-white rounded"
-                    >
-                        Hire
-                    </button>
-                </div>
-            ))}
-        </div>
+      <div className="max-w-md mx-auto p-4 space-y-4">
+        <h2 className="text-xl font-bold">Wave {stage} Bidding</h2>
+        <p>
+          {stage === 1
+            ? 'Tier‐A providers within 3 km'
+            : stage === 2
+            ? 'Tier‐B providers within 10 km'
+            : 'All providers'}
+        </p>
+        <p><strong>Time remaining:</strong> {mm}:{ss}</p>
+        <p><strong>Accept Price:</strong> ${job.acceptPrice!.toFixed(2)}</p>
+      </div>
     );
+  }
+
+  // --- BIDDING DONE: SHOW TOP 3 QUOTES ---
+  return (
+    <div className="max-w-md mx-auto p-4 space-y-4">
+      <h2 className="text-xl font-bold">Choose a Quote</h2>
+      {topBids.length === 0 && <p>No bids received.</p>}
+      {topBids.map((bid: Bid) => (
+        <div key={bid.id} className="border p-3 rounded space-y-2">
+          <p>Provider #{bid.providerId} — <strong>${bid.price.toFixed(2)}</strong></p>
+          <p className="text-gray-600">{bid.note}</p>
+          <button
+            className="px-4 py-1 bg-green-600 text-white rounded"
+            onClick={async () => {
+              try {
+                await fetcher<Job>(
+                  `/jobs/${jobId}/bids/${bid.id}/select`,
+                  { method: 'POST' }
+                );
+                toast.success('Hired! 🎉');
+                router.push(`/customer/post-quote/${jobId}/accepted`);
+              } catch (err: any) {
+                toast.error(`Failed to hire: ${err.message}`);
+              }
+            }}
+          >
+            Hire
+          </button>
+        </div>
+      ))}
+    </div>
+  );
 }
