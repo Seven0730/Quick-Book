@@ -1,4 +1,4 @@
-import prisma from '../../lib/prisma';
+import prisma from '../lib/prisma';
 
 export const bidRepository = {
     create: (data: { jobId: number; providerId: number; price: number; note?: string }) =>

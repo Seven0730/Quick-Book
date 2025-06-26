@@ -14,7 +14,7 @@ async function start() {
     await app.register(cors, { origin: '*' });
 
     await app.register(rateLimit, {
-        max: 10,
+        max: 1000,
         timeWindow: '1 minute',
         errorResponseBuilder: (_req, context) => ({
             statusCode: 429,
@@ -50,8 +50,11 @@ async function start() {
     app.register(providersRoutes, { prefix: '/providers' });
     app.register(bidsRoutes);
 
-    await app.listen({ port: 4000 });
-    app.log.info('HTTP server listening on http://localhost:4000');
+    await app.listen({
+        port: 4000,
+        host: '0.0.0.0'
+    })
+    app.log.info('HTTP server listening on http://0.0.0.0:4000')
 
     initSocket(app.server);
 

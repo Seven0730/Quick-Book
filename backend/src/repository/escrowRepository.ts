@@ -1,4 +1,4 @@
-import prisma from '../../lib/prisma';
+import prisma from '../lib/prisma';
 
 export const escrowRepository = {
     findHold: (jobId: number) => prisma.escrow.findFirst({ where: { jobId, status: 'HOLD' } }),

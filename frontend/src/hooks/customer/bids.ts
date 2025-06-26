@@ -9,7 +9,7 @@ export function useSelectBid(jobId: number) {
             fetcher<Bid>(`/jobs/${jobId}/bids/${bidId}/select`, {
                 method: 'POST',
             }),
-        onSuccess: (hired) => {
+        onSuccess: () => {
             // update the job detail & jobs lists
             qc.invalidateQueries({ queryKey: ['customer-job', jobId] });
             qc.invalidateQueries({ queryKey: ['customer-jobs'] });

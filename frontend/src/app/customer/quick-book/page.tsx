@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCategories } from '@/hooks/customer/useCategories';
 import { usePriceGuidance } from '@/hooks/customer/usePriceGuidance';

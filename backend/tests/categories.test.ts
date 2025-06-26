@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { categoriesRoutes } from '../src/routes/categories';
-import prisma from '../lib/prisma';
+import prisma from '../src/lib/prisma';
 
 let app: ReturnType<typeof Fastify>;
 

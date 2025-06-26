@@ -1,11 +1,10 @@
 'use client';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useJob, useJobBids } from '@/hooks/customer/jobs';
 import { JobStatusToast } from '@/components/JobStatusToast';
 import Link from 'next/link';
 
 export default function CustomerJobDetailPage() {
-    const router = useRouter();
     const path = usePathname()!;
     const jobId = Number(path.split('/').pop());
 

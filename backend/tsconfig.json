@@ -13,6 +13,7 @@
     "isolatedModules": true,
     "incremental": true,
     "types": ["node", "jest"],
+    "outDir": "dist",
     "paths": {
       "@/*": ["./src/*"]
     }

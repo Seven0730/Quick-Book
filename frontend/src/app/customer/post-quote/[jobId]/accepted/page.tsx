@@ -4,7 +4,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useJob } from '@/hooks/customer/jobs';
 import Link from 'next/link';
-import type { Job } from '@/types';
 
 export default function CustomerPostQuoteAcceptedPage() {
     const router = useRouter();

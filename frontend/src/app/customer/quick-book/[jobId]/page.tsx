@@ -1,12 +1,11 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useJob } from '@/hooks/customer/jobs';
 import Link from 'next/link';
 
 export default function CustomerQuickBookWaitingPage() {
-    const router = useRouter();
     const jobId = Number(usePathname()!.split('/').pop());
     const { data: job, isLoading, error, refetch } = useJob(jobId);
 

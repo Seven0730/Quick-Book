@@ -6,6 +6,7 @@ import type { Bid } from '@/types';
 
 export default function ProviderHistoryPage() {
     const { providerId, setProviderId } = useProviderContext();
+    const { data: bids = [], isLoading, error } = useProviderBids(providerId ?? undefined);
 
     if (providerId == null) {
         return (
@@ -26,8 +27,6 @@ export default function ProviderHistoryPage() {
             </div>
         );
     }
-
-    const { data: bids = [], isLoading, error } = useProviderBids(providerId);
 
 
     if (isLoading) return <p>loading...</p>;

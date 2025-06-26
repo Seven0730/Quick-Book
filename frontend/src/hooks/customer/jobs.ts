@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { fetcher } from '@/lib/api';
 import type { Job, Bid } from '@/types';
 

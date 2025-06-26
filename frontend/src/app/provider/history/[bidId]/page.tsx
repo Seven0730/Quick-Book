@@ -15,7 +15,7 @@ export default function ProviderBidDetailPage() {
 
     const cancelBid = useCancelBid();
 
-    if (!bid) return <p>bid doesn't exist</p>;
+    if (!bid) return <p>bid doesnt exist</p>;
 
     function deriveStatus(bid: Bid) {
         const { job } = bid;

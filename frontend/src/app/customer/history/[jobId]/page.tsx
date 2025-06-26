@@ -1,5 +1,5 @@
 'use client';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { useJob } from '@/hooks/customer/jobs';
 import { useTopBids } from '@/hooks/customer/useTopBids';

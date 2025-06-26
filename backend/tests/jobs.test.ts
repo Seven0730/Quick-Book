@@ -5,7 +5,7 @@ import { initSocket, getIO } from '../src/socket';
 import { categoriesRoutes } from '../src/routes/categories';
 import { providersRoutes } from '../src/routes/providers';
 import { jobsRoutes } from '../src/routes/jobs';
-import prisma from '../lib/prisma';
+import prisma from '../src/lib/prisma';
 
 let app: ReturnType<typeof Fastify>;
 let categoryId: number;
