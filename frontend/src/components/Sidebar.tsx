@@ -18,7 +18,7 @@ const modules = [
     path: '/provider',
     children: [
       { label: 'Quick-Book', path: '/provider/quick-book' },
-      // future: { label: 'Bidding', path: '/provider/bids' }
+      { label: 'Post & Quote', path: '/provider/post-quote' },
     ] as SubLink[],
   },
 ];

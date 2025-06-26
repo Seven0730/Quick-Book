@@ -14,6 +14,7 @@ export const jobRepository = {
         timeslot: string;
         customerLat: number;
         customerLon: number;
+        acceptPrice?: number;
     }) => prisma.job.create({ data }),
     update: (id: number, data: { price?: number; timeslot?: string; status?: string }) =>
         prisma.job.update({ where: { id }, data }),

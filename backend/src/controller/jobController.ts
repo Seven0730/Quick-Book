@@ -25,17 +25,18 @@ export class JobController {
         req: FastifyRequest,
         reply: FastifyReply
     ) {
-        const { categoryId, price, timeslot, customerLat, customerLon } =
+        const { categoryId, price, timeslot, customerLat, customerLon, acceptPrice } =
             req.body as {
                 categoryId: number;
                 price: number;
                 timeslot: string;
                 customerLat: number;
                 customerLon: number;
+                acceptPrice?: number;
             };
 
         const job = await jobService.create({
-            categoryId, price, timeslot, customerLat, customerLon
+            categoryId, price, timeslot, customerLat, customerLon, acceptPrice
         });
 
         // get all available provider sockets
