@@ -11,6 +11,8 @@ import { PriceGuidance } from '../schemas/PriceGuidance';
 const STAGE1_RADIUS_KM = 3;
 const STAGE2_RADIUS_KM = 10;
 const STAGE1_DELAY_MS = 0;
+// const STAGE2_DELAY_MS = 0;  //for test
+// const STAGE3_DELAY_MS = 0; // for test
 const STAGE2_DELAY_MS = 5 * 60 * 1000;  // 5 minutes
 const STAGE3_DELAY_MS = 15 * 60 * 1000; // 15 minutes
 
