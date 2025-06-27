@@ -24,7 +24,6 @@ services:
     depends_on:
       - db
     environment:
-      # 必须和 .env 中定义一致，供 Prisma 连接
       DATABASE_URL: postgresql://admin:password@db:5432/appdb
       NODE_ENV: production
     ports:
