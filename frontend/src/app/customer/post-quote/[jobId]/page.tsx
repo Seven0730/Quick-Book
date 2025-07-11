@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState }    from 'react';
+import { useEffect, useState, useRef }    from 'react';
 import { useJob }                  from '@/hooks/customer/jobs';
 import { useTopBids }              from '@/hooks/customer/useTopBids';
 import { fetcher }                 from '@/lib/api';
@@ -20,6 +20,7 @@ export default function CustomerPostQuoteWaitingPage() {
   const [elapsed,    setElapsed]    = useState(0);
   const [stage,      setStage]      = useState<1|2|3>(1);
   const [stageDone,  setStageDone]  = useState(false);
+  const toastShown = useRef<{error?: boolean; notFound?: boolean; hired?: boolean}>({});
 
   // TICK every second
   useEffect(() => {
@@ -61,6 +62,27 @@ export default function CustomerPostQuoteWaitingPage() {
     }, 5000);
     return () => clearInterval(iv2);
   }, [refetchJob]);
+
+  useEffect(() => {
+    if (je && !toastShown.current.error) {
+      toast.error('Failed to load job.');
+      toastShown.current.error = true;
+    }
+  }, [je]);
+
+  useEffect(() => {
+    if (!job && !jl && !toastShown.current.notFound) {
+      toast.error('Job not found.');
+      toastShown.current.notFound = true;
+    }
+  }, [job, jl]);
+
+  useEffect(() => {
+    if (job?.status === 'BOOKED' && !toastShown.current.hired) {
+      toast.success('Job has already been hired!');
+      toastShown.current.hired = true;
+    }
+  }, [job]);
 
   if (jl)        return <p>Loading job…</p>;
   if (je)        return <p className="text-red-500">Error: {je.message}</p>;

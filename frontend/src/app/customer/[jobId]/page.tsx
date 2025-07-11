@@ -3,6 +3,8 @@ import { usePathname } from 'next/navigation';
 import { useJob, useJobBids } from '@/hooks/customer/jobs';
 import { JobStatusToast } from '@/components/JobStatusToast';
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
+import { toast } from 'react-hot-toast';
 
 export default function CustomerJobDetailPage() {
     const path = usePathname()!;
@@ -10,6 +12,21 @@ export default function CustomerJobDetailPage() {
 
     const { data: job, isLoading, error } = useJob(jobId);
     const { data: bids, isLoading: bidsLoading } = useJobBids(jobId);
+    const toastShown = useRef<{error?: boolean; notFound?: boolean}>({});
+
+    useEffect(() => {
+        if (error && !toastShown.current.error) {
+            toast.error('Failed to load job.');
+            toastShown.current.error = true;
+        }
+    }, [error]);
+
+    useEffect(() => {
+        if (!job && !isLoading && !toastShown.current.notFound) {
+            toast.error('Job not found.');
+            toastShown.current.notFound = true;
+        }
+    }, [job, isLoading]);
 
     if (isLoading) return <p>Loading job…</p>;
     if (error || !job) return <p className="text-red-500">Job not found</p>;

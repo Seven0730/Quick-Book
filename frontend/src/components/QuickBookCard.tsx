@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAppSocket } from '@/lib/hooks/useAppSocket';
 import { useProviderContext } from '@/contexts/ProviderContext';
 import { fetcher } from '@/lib/api';
+import { toast } from 'react-hot-toast';
 import type { Job } from '@/types';
 
 export function QuickBookCard({ job }: { job: Job }) {
@@ -18,14 +19,18 @@ export function QuickBookCard({ job }: { job: Job }) {
 
     async function accept() {
         if (!providerId) return;
+        toast.loading('Accepting job...');
         try {
             await fetcher<Job>(`/jobs/${job.id}/accept`, {
                 method: 'POST',
                 headers: { 'x-provider-id': String(providerId) },
             });
+            toast.dismiss();
+            toast.success('Job accepted successfully!');
             setHidden(true);
         } catch (err: any) {
-            alert(`Accept failed: ${err.message}`);
+            toast.dismiss();
+            toast.error(`Accept failed: ${err.message}`);
         }
     }
 

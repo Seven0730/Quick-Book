@@ -13,7 +13,6 @@ export function usePostBid() {
         body: JSON.stringify({ providerId, price, note }),
       }),
     onSuccess: () => {
-      // refresh your list of pending post-quote jobs
       qc.invalidateQueries({ queryKey: ['provider-post-quote-jobs'] })
     },
   })

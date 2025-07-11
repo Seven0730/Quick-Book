@@ -1,9 +1,10 @@
 'use client';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useJob } from '@/hooks/customer/jobs';
 import { usePostBid } from '@/hooks/provider/usePostBid';
 import { useProviderContext } from '@/contexts/ProviderContext';
+import { toast } from 'react-hot-toast';
 
 export default function ProviderJobDetailPage() {
     const path = usePathname()!;
@@ -14,6 +15,41 @@ export default function ProviderJobDetailPage() {
     const postBid = usePostBid();
     const [price, setPrice] = useState(0);
     const [note, setNote] = useState('');
+    const toastShown = useRef<{error?: boolean; notFound?: boolean}>({});
+
+    useEffect(() => {
+        if (error && !toastShown.current.error) {
+            toast.error('Failed to load job.');
+            toastShown.current.error = true;
+        }
+    }, [error]);
+
+    useEffect(() => {
+        if (!job && !isLoading && !toastShown.current.notFound) {
+            toast.error('Job not found.');
+            toastShown.current.notFound = true;
+        }
+    }, [job, isLoading]);
+
+    function handleSubmitBid() {
+        if (price <= 0 || providerId == null) return;
+        toast.loading('Submitting bid...');
+        postBid.mutate(
+            { jobId, providerId, price, note },
+            {
+                onSuccess: (bid) => {
+                    toast.dismiss();
+                    toast.success(`Bid #${bid.id} submitted successfully!`);
+                    setPrice(0);
+                    setNote('');
+                },
+                onError: (err) => {
+                    toast.dismiss();
+                    toast.error(`Failed to submit bid: ${err.message}`);
+                },
+            }
+        );
+    }
 
     if (providerId == null) {
         return (
@@ -62,14 +98,11 @@ export default function ProviderJobDetailPage() {
                 />
                 <button
                     disabled={postBid.isPending || price <= 0}
-                    onClick={() => postBid.mutate({ jobId, providerId, price, note })}
+                    onClick={handleSubmitBid}
                     className="w-full py-2 bg-blue-600 text-white rounded disabled:opacity-50"
                 >
                     {postBid.isPending ? 'Submitting…' : 'Submit Bid'}
                 </button>
-                {postBid.isError && (
-                    <p className="text-red-500">{postBid.error?.message}</p>
-                )}
             </div>
         </div>
     );

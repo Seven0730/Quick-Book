@@ -2,10 +2,27 @@
 
 import Link from 'next/link';
 import { useJobs } from '@/hooks/customer/jobs';
+import { useEffect, useRef } from 'react';
+import { toast } from 'react-hot-toast';
 import type { Job } from '@/types';
 
 export default function CustomerHistoryPage() {
   const { data: jobs = [], isLoading, error } = useJobs();
+  const toastShown = useRef<{error?: boolean; noJobs?: boolean}>({});
+
+  useEffect(() => {
+    if (error && !toastShown.current.error) {
+      toast.error('Failed to load job history.');
+      toastShown.current.error = true;
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (!isLoading && jobs.length === 0 && !toastShown.current.noJobs) {
+      toast('No job history found.');
+      toastShown.current.noJobs = true;
+    }
+  }, [isLoading, jobs.length]);
 
   if (isLoading) return <p>Loading jobs…</p>;
   if (error) return <p className="text-red-500">Error: {error.message}</p>;

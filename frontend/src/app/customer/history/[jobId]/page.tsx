@@ -1,6 +1,6 @@
 'use client';
 import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useJob } from '@/hooks/customer/jobs';
 import { useTopBids } from '@/hooks/customer/useTopBids';
 import { fetcher } from '@/lib/api';
@@ -12,12 +12,27 @@ export default function CustomerJobDetailPage() {
     const id = Number(usePathname()!.split('/').pop());
     const { data: job, isLoading, error, refetch: refetchJob } = useJob(id);
     const { data: bids = [], refetch: refetchBids } = useTopBids(id);
+    const toastShown = useRef<{error?: boolean; notFound?: boolean}>({});
 
     useEffect(() => {
         const iv1 = setInterval(() => refetchJob(), 10_000);
         const iv2 = setInterval(() => refetchBids(), 10_000);
         return () => { clearInterval(iv1); clearInterval(iv2); };
     }, [refetchJob, refetchBids]);
+
+    useEffect(() => {
+        if (error && !toastShown.current.error) {
+            toast.error('Failed to load job.');
+            toastShown.current.error = true;
+        }
+    }, [error]);
+
+    useEffect(() => {
+        if (!job && !isLoading && !toastShown.current.notFound) {
+            toast.error('Job not found.');
+            toastShown.current.notFound = true;
+        }
+    }, [job, isLoading]);
 
     if (isLoading) return <p>Loading…</p>;
     if (error) return <p className="text-red-500">Error: {error.message}</p>;

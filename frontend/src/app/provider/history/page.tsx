@@ -2,11 +2,28 @@
 import Link from 'next/link';
 import { useProviderBids } from '@/hooks/provider/useProviderBids';
 import { useProviderContext } from '@/contexts/ProviderContext';
+import { useEffect, useRef } from 'react';
+import { toast } from 'react-hot-toast';
 import type { Bid } from '@/types';
 
 export default function ProviderHistoryPage() {
     const { providerId, setProviderId } = useProviderContext();
     const { data: bids = [], isLoading, error } = useProviderBids(providerId ?? undefined);
+    const toastShown = useRef<{error?: boolean; noHistory?: boolean}>({});
+
+    useEffect(() => {
+        if (error && !toastShown.current.error) {
+            toast.error('Failed to load bid history.');
+            toastShown.current.error = true;
+        }
+    }, [error]);
+
+    useEffect(() => {
+        if (!isLoading && bids.length === 0 && !toastShown.current.noHistory) {
+            toast('No bid history found.');
+            toastShown.current.noHistory = true;
+        }
+    }, [isLoading, bids.length]);
 
     if (providerId == null) {
         return (
@@ -27,7 +44,6 @@ export default function ProviderHistoryPage() {
             </div>
         );
     }
-
 
     if (isLoading) return <p>loading...</p>;
     if (error) return <p className="text-red-500">error: {error.message}</p>;

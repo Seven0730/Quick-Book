@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { usePendingJobs } from '@/hooks/provider/usePendingJobs'
 import { usePostBid } from '@/hooks/provider/usePostBid'
 import { useAppSocket } from '@/lib/hooks/useAppSocket'
@@ -11,9 +11,10 @@ import toast from 'react-hot-toast'
 
 export default function ProviderPostQuotePage() {
     const { providerId, setProviderId } = useProviderContext();
-    const { data: initialJobs = [], isLoading } = usePendingJobs();
+    const { data: initialJobs = [], isLoading, error } = usePendingJobs();
     const postBid = usePostBid()
     const { socket, ready } = useAppSocket()
+    const toastShown = useRef<{error?: boolean; noJobs?: boolean}>({});
 
     const [jobs, setJobs] = useState<Job[]>(initialJobs)
 
@@ -34,6 +35,20 @@ export default function ProviderPostQuotePage() {
             socket.off('new-job', onNew)
         }
     }, [socket, ready])
+
+    useEffect(() => {
+        if (error && !toastShown.current.error) {
+            toast.error('Failed to load jobs.');
+            toastShown.current.error = true;
+        }
+    }, [error]);
+
+    useEffect(() => {
+        if (!isLoading && jobs.length === 0 && !toastShown.current.noJobs) {
+            toast('No Post & Quote jobs available right now.');
+            toastShown.current.noJobs = true;
+        }
+    }, [isLoading, jobs.length]);
 
     if (providerId == null) {
         return (
@@ -56,11 +71,11 @@ export default function ProviderPostQuotePage() {
     }
 
     if (isLoading) return <p>Loading jobs…</p>
-    if (!jobs.length) return <p>No Post & Quote jobs right now.</p>
+    if (!jobs.length) return <p>No Post & Quote jobs right now.</p>
 
     return (
         <div className="space-y-4 max-w-md mx-auto p-4">
-            <h1 className="text-2xl font-bold">Post & Quote Jobs</h1>
+            <h1 className="text-2xl font-bold">Post & Quote Jobs</h1>
             {jobs.map(job => (
                 <JobBidForm key={job.id} job={job} providerId={providerId!} postBid={postBid} />
             ))}
@@ -81,19 +96,23 @@ function JobBidForm({
     const [note, setNote] = useState<string>('')
 
     const onSubmit = () => {
+        if (price <= 0) return;
+        toast.loading('Submitting bid...');
         postBid.mutate(
             { jobId: job.id, providerId, price, note },
             {
-                onSuccess: () => {
-                    toast.success(`Bid submitted: $${price.toFixed(2)}`)
-                    setPrice(0)
-                    setNote('')
+                onSuccess: (bid) => {
+                    toast.dismiss();
+                    toast.success(`Bid #${bid.id} submitted successfully!`);
+                    setPrice(0);
+                    setNote('');
                 },
                 onError: (err) => {
-                    toast.error(`Bid failed: ${err.message}`)
-                }
+                    toast.dismiss();
+                    toast.error(`Failed to submit bid: ${err.message}`);
+                },
             }
-        )
+        );
     }
 
     return (

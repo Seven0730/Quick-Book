@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCategories } from '@/hooks/customer/useCategories';
 import { usePostJob, PostJobPayload } from '@/hooks/customer/usePostJob';
 import { TimeslotPicker } from '@/components/TimeslotPicker';
+import { toast } from 'react-hot-toast';
 
 export default function CustomerPostQuotePage() {
     const router = useRouter();
@@ -18,6 +19,7 @@ export default function CustomerPostQuotePage() {
 
     function handleSubmit() {
         if (!canSubmit) return;
+        toast.loading('Posting job...');
         const payload: PostJobPayload = {
             categoryId: categoryId!,
             acceptPrice,
@@ -27,8 +29,14 @@ export default function CustomerPostQuotePage() {
         };
         postJob.mutate(payload, {
             onSuccess: (job) => {
+                toast.dismiss();
+                toast.success(`Job #${job.id} posted successfully!`);
                 router.push(`/customer/post-quote/${job.id}`);
-            }
+            },
+            onError: (err) => {
+                toast.dismiss();
+                toast.error(`Failed to post job: ${err.message}`);
+            },
         });
     }
 
@@ -65,11 +73,11 @@ export default function CustomerPostQuotePage() {
             </div>
 
             <button
-                disabled={!canSubmit}
+                disabled={!canSubmit || postJob.isPending}
                 onClick={handleSubmit}
                 className="w-full py-2 bg-blue-600 text-white rounded disabled:opacity-50"
             >
-                Post Job
+                {postJob.isPending ? 'Posting...' : 'Post Job'}
             </button>
         </div>
     );

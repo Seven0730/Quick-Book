@@ -1,15 +1,18 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useJob } from '@/hooks/customer/jobs';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 
 export default function CustomerQuickBookWaitingPage() {
     const jobId = Number(usePathname()!.split('/').pop());
     const { data: job, isLoading, error, refetch } = useJob(jobId);
 
     const [remaining, setRemaining] = useState<number>(30);
+    const toastShown = useRef<{error?: boolean; notFound?: boolean; destroyed?: boolean; booked?: boolean}>({});
+
     useEffect(() => {
         if (!job) return;
         const created = new Date(job.createdAt).getTime();
@@ -41,6 +44,31 @@ export default function CustomerQuickBookWaitingPage() {
         }, 5000);
         return () => clearInterval(iv2);
     }, [refetch]);
+
+    useEffect(() => {
+        if (error && !toastShown.current.error) {
+            toast.error('Failed to load job.');
+            toastShown.current.error = true;
+        }
+    }, [error]);
+
+    useEffect(() => {
+        if (!job && !isLoading && !toastShown.current.notFound) {
+            toast.error('Job not found.');
+            toastShown.current.notFound = true;
+        }
+    }, [job, isLoading]);
+
+    useEffect(() => {
+        if (job?.status === 'DESTROYED' && !toastShown.current.destroyed) {
+            toast('No provider accepted your quick-book request in 30 seconds.');
+            toastShown.current.destroyed = true;
+        }
+        if (job?.status === 'BOOKED' && !toastShown.current.booked) {
+            toast.success('Your job has been accepted!');
+            toastShown.current.booked = true;
+        }
+    }, [job]);
 
     if (isLoading) return <p>Checking status…</p>;
     if (error) return <p className="text-red-500">Error loading job</p>;

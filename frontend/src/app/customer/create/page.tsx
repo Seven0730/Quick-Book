@@ -1,21 +1,17 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetcher } from '@/lib/api';
+import { usePostJob } from '@/hooks/customer/usePostJob';
+import { toast } from 'react-hot-toast';
 import { CategorySelect } from '@/components/CategorySelect';
 import { PriceSlider } from '@/components/PriceSlider';
 import { TimeslotPicker } from '@/components/TimeslotPicker';
-import type { Job } from '@/types';
 
 export default function CustomerCreateJobPage() {
     const router = useRouter();
-    const qc = useQueryClient();
-
     const [catId, setCatId] = useState<number>();
     const [price, setPrice] = useState<number>(0);
     const [slot, setSlot] = useState<string>();
-    const [error, setError] = useState<string>();
 
     // stubbed customer location
     const customerLat = 1.3521;
@@ -23,24 +19,26 @@ export default function CustomerCreateJobPage() {
 
     const canSubmit = Boolean(catId && price > 0 && slot);
 
-    const mutation = useMutation<Job, Error, {
-        categoryId: number;
-        price: number;
-        timeslot: string;
-        customerLat: number;
-        customerLon: number;
-    }>({
-        mutationFn: (data) =>
-            fetcher<Job>('/jobs', {
-                method: 'POST',
-                body: JSON.stringify(data),
-            }),
-        onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['customer-jobs'] });
-            router.push('/customer');
-        },
-        onError: (err) => setError(err.message),
-    });
+    const postJob = usePostJob();
+
+    function handleSubmit() {
+        if (!canSubmit) return;
+        toast.loading('Creating job...');
+        postJob.mutate(
+            { categoryId: catId!, price, timeslot: slot!, customerLat, customerLon },
+            {
+                onSuccess: (job) => {
+                    toast.dismiss();
+                    toast.success(`Job #${job.id} created successfully!`);
+                    router.push('/customer');
+                },
+                onError: (err) => {
+                    toast.dismiss();
+                    toast.error(`Failed to create job: ${err.message}`);
+                },
+            }
+        );
+    }
 
     return (
         <div className="space-y-6 max-w-md">
@@ -66,16 +64,12 @@ export default function CustomerCreateJobPage() {
             </div>
 
             <button
-                disabled={!canSubmit || mutation.isPending}
-                onClick={() =>
-                    mutation.mutate({ categoryId: catId!, price, timeslot: slot!, customerLat, customerLon })
-                }
+                disabled={!canSubmit || postJob.isPending}
+                onClick={handleSubmit}
                 className="w-full py-2 bg-blue-600 text-white rounded disabled:opacity-50"
             >
-                {mutation.isPending ? 'Submitting…' : 'Confirm'}
+                {postJob.isPending ? 'Submitting…' : 'Confirm'}
             </button>
-
-            {error && <p className="text-red-500">{error}</p>}
         </div>
     );
 }

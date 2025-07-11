@@ -6,6 +6,7 @@ import { usePriceGuidance } from '@/hooks/customer/usePriceGuidance';
 import { fetcher } from '@/lib/api';
 import { TimeslotPicker } from '@/components/TimeslotPicker';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
 import type { Job } from '@/types';
 
 export default function CustomerQuickBookPage() {
@@ -23,14 +24,13 @@ export default function CustomerQuickBookPage() {
 
     const [price, setPrice] = useState<number>(median);
     const [timeslot, setSlot] = useState<string>();
-    const [error, setError] = useState<string>();
 
     // enable submit only when all fields set
     const canSubmit = !!catId && price > 0 && !!timeslot;
 
     async function handleConfirm() {
         if (!canSubmit) return;
-        setError('');
+        toast.loading('Creating quick-book job...');
         try {
             const job = await fetcher<Job>('/jobs', {
                 method: 'POST',
@@ -43,11 +43,14 @@ export default function CustomerQuickBookPage() {
                     customerLon: 103.8198,
                 }),
             });
+            toast.dismiss();
+            toast.success(`Quick-book job #${job.id} created successfully!`);
             // refresh customer jobs list
             qc.invalidateQueries({ queryKey: ['customer-jobs'] });
             router.push(`/customer/quick-book/${job.id}`);
         } catch (e: any) {
-            setError(e.message);
+            toast.dismiss();
+            toast.error(`Failed to create job: ${e.message}`);
         }
     }
 
@@ -97,7 +100,6 @@ export default function CustomerQuickBookPage() {
             >
                 Confirm
             </button>
-            {error && <p className="text-red-500">{error}</p>}
         </div>
     );
 }

@@ -6,6 +6,7 @@ import { TimeslotPicker } from '@/components/TimeslotPicker';
 import { fetcher } from '@/lib/api';
 import type { Job } from '@/types';
 import { JobStatusToast } from '@/components/JobStatusToast';
+import { toast } from 'react-hot-toast';
 
 export default function QuickBookPage() {
   const [catId, setCatId] = useState<number>();
@@ -13,7 +14,6 @@ export default function QuickBookPage() {
   const [slot, setSlot] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
   const [job, setJob] = useState<Job | null>(null);
-  const [error, setError] = useState<string>();
 
   // For now, stub customer location
   const customerLat = 1.3521;
@@ -24,7 +24,7 @@ export default function QuickBookPage() {
   async function handleConfirm() {
     if (!canSubmit) return;
     setSubmitting(true);
-    setError(undefined);
+    toast.loading('Creating job...');
     try {
       const newJob = await fetcher<Job>('/jobs', {
         method: 'POST',
@@ -36,9 +36,12 @@ export default function QuickBookPage() {
           customerLon
         })
       });
+      toast.dismiss();
+      toast.success(`Job #${newJob.id} created successfully!`);
       setJob(newJob);
     } catch (e: any) {
-      setError(e.message);
+      toast.dismiss();
+      toast.error(`Failed to create job: ${e.message}`);
     } finally {
       setSubmitting(false);
     }
@@ -87,8 +90,6 @@ export default function QuickBookPage() {
       >
         {submitting ? 'Submitting…' : 'Confirm Quick-Book'}
       </button>
-
-      {error && <p className="text-red-500">Error: {error}</p>}
     </main>
   );
 }
