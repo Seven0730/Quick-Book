@@ -2,13 +2,19 @@
 
 import Link from 'next/link';
 import { useJobs } from '@/hooks/customer/jobs';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import type { Job } from '@/types';
+import Pagination from '@mui/material/Pagination';
 
 export default function CustomerHistoryPage() {
   const { data: jobs = [], isLoading, error } = useJobs();
   const toastShown = useRef<{error?: boolean; noJobs?: boolean}>({});
+  const [page, setPage] = useState(1);
+  const pageSize = 9;
+  const sortedJobs = [...jobs].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const totalPages = Math.ceil(sortedJobs.length / pageSize);
+  const pagedJobs = sortedJobs.slice((page - 1) * pageSize, page * pageSize);
 
   useEffect(() => {
     if (error && !toastShown.current.error) {
@@ -32,7 +38,7 @@ export default function CustomerHistoryPage() {
     <div className="max-w-2xl mx-auto p-4 space-y-4">
       <h1 className="text-2xl font-bold">My Job History</h1>
       <ul className="divide-y">
-        {jobs.map((job: Job) => (
+        {pagedJobs.map((job: Job) => (
           <li key={job.id} className="py-3 flex justify-between items-center">
             <div>
               <Link
@@ -54,6 +60,15 @@ export default function CustomerHistoryPage() {
           </li>
         ))}
       </ul>
+      <div className="flex justify-center items-center mt-4">
+        <Pagination
+          count={totalPages || 1}
+          page={page}
+          onChange={(_, value) => setPage(value)}
+          color="primary"
+          shape="rounded"
+        />
+      </div>
     </div>
   );
 }
