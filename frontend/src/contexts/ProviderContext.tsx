@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface ProviderContextValue {
   providerId: number | null;
-  setProviderId: (id: number) => void;
+  setProviderId: (id: number | null) => void;
 }
 
 const ProviderContext = createContext<ProviderContextValue | undefined>(undefined);
