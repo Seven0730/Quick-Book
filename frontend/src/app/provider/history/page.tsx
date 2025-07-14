@@ -5,6 +5,7 @@ import { useProviderContext } from '@/contexts/ProviderContext';
 import { useEffect, useRef } from 'react';
 import { toast } from 'react-hot-toast';
 import type { Bid } from '@/types';
+import HistoryIcon from '@mui/icons-material/History';
 
 export default function ProviderHistoryPage() {
     const { providerId, setProviderId } = useProviderContext();
@@ -63,32 +64,39 @@ export default function ProviderHistoryPage() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-4 space-y-4">
-            <h1 className="text-2xl font-bold">My History</h1>
-            <ul className="divide-y">
-                {bids.map(bid => {
-                    const status = deriveStatus(bid);
-                    const color =
-                        status === 'PENDING' ? 'bg-yellow-200 text-yellow-800' :
-                            status === 'ACCEPTED' ? 'bg-green-200 text-green-800' :
-                                status === 'FAILED' ? 'bg-red-200 text-red-800' :
-            /*CANCELLED*/           'bg-gray-200 text-gray-800';
+        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-blue-100 to-yellow-100 py-8">
+            <div className="max-w-2xl mx-auto p-4 space-y-6">
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="text-blue-400 animate-bounce">
+                        <HistoryIcon fontSize="large" />
+                    </span>
+                    <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-pink-400 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg">My Bid History</h1>
+                </div>
+                <ul className="space-y-4">
+                    {bids.map(bid => {
+                        const status = deriveStatus(bid);
+                        const color =
+                            status === 'PENDING' ? 'bg-yellow-200 text-yellow-800 group-hover:bg-yellow-300' :
+                                status === 'ACCEPTED' ? 'bg-green-200 text-green-800 group-hover:bg-green-300' :
+                                    status === 'FAILED' ? 'bg-red-200 text-red-800 group-hover:bg-red-300' :
+                /*CANCELLED*/           'bg-gray-200 text-gray-800 group-hover:bg-gray-300';
 
-                    return (
-                        <li key={bid.id} className="py-3 flex justify-between items-center">
-                            <Link
-                                href={`/provider/history/${bid.id}`}
-                                className="text-blue-600 hover:underline"
-                            >
-                                Bid #{bid.id} on Job #{bid.job.id}
-                            </Link>
-                            <span className={`px-2 py-0.5 rounded text-sm ${color}`}>
-                                {status}
-                            </span>
-                        </li>
-                    );
-                })}
-            </ul>
+                        return (
+                            <li key={bid.id} className="rounded-xl shadow-lg bg-white/80 px-6 py-4 flex justify-between items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl group border border-pink-100">
+                                <Link
+                                    href={`/provider/history/${bid.id}`}
+                                    className="text-blue-600 font-bold text-lg hover:underline hover:text-pink-500 transition-colors"
+                                >
+                                    Bid #{bid.id} on Job #{bid.job.id}
+                                </Link>
+                                <span className={`px-3 py-1 rounded-full text-sm font-bold shadow transition-all ${color} animate-fadeIn`}>
+                                    {status}
+                                </span>
+                            </li>
+                        );
+                    })}
+                </ul>
+            </div>
         </div>
     );
 }

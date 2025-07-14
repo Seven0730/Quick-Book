@@ -8,6 +8,7 @@ import { useProviderContext } from '@/contexts/ProviderContext'
 
 import type { Job } from '@/types'
 import toast from 'react-hot-toast'
+import ChatIcon from '@mui/icons-material/Chat';
 
 export default function ProviderPostQuotePage() {
     const { providerId, setProviderId } = useProviderContext();
@@ -74,11 +75,20 @@ export default function ProviderPostQuotePage() {
     if (!jobs.length) return <p>No Post & Quote jobs right now.</p>
 
     return (
-        <div className="space-y-4 max-w-md mx-auto p-4">
-            <h1 className="text-2xl font-bold">Post & Quote Jobs</h1>
-            {jobs.map(job => (
-                <JobBidForm key={job.id} job={job} providerId={providerId!} postBid={postBid} />
-            ))}
+        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-blue-100 to-yellow-100 py-8">
+            <div className="max-w-md mx-auto p-4 space-y-6">
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="text-pink-500 animate-bounce">
+                        <ChatIcon fontSize="large" />
+                    </span>
+                    <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-500 via-blue-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg">Post & Quote Jobs</h1>
+                </div>
+                <div className="space-y-4">
+                    {jobs.map(job => (
+                        <JobBidForm key={job.id} job={job} providerId={providerId!} postBid={postBid} />
+                    ))}
+                </div>
+            </div>
         </div>
     )
 }
@@ -116,26 +126,26 @@ function JobBidForm({
     }
 
     return (
-        <div className="border p-4 rounded space-y-2 bg-blue-50">
-            <p><strong>Job #{job.id}</strong> — AcceptPrice: ${job.acceptPrice!.toFixed(2)}</p>
-            <p>{job.description}</p>
-            <div className="flex space-x-2">
+        <div className="bg-white/80 border border-pink-100 rounded-xl shadow-lg p-6 space-y-3">
+            <p className="font-semibold text-blue-600"><strong>Job #{job.id}</strong> — AcceptPrice: ${job.acceptPrice!.toFixed(2)}</p>
+            <p className="text-gray-700">{job.description}</p>
+            <div className="flex flex-col sm:flex-row gap-2 items-stretch">
                 <input
                     type="number" placeholder="Your price"
                     value={price}
                     onChange={e => setPrice(+e.target.value)}
-                    className="border p-1 rounded w-24"
+                    className="border-2 border-blue-200 p-3 rounded-xl focus:border-blue-400 focus:outline-none transition-colors w-full sm:w-32 font-semibold"
                 />
                 <input
                     type="text" placeholder="Note (opt.)"
                     value={note}
                     onChange={e => setNote(e.target.value)}
-                    className="border p-1 rounded flex-1"
+                    className="border-2 border-pink-200 p-3 rounded-xl focus:border-pink-400 focus:outline-none transition-colors w-full font-semibold"
                 />
                 <button
                     onClick={onSubmit}
                     disabled={postBid.isPending || price <= 0}
-                    className="px-3 py-1 bg-green-600 text-white rounded disabled:opacity-50"
+                    className="px-4 py-2 bg-gradient-to-r from-green-400 via-blue-400 to-yellow-300 text-white font-bold rounded-xl shadow hover:scale-105 hover:shadow-2xl transition-all duration-200 disabled:opacity-50"
                 >
                     {postBid.isPending ? 'Sending…' : 'Bid'}
                 </button>

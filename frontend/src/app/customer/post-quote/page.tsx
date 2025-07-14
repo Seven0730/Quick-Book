@@ -4,7 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useCategories } from '@/hooks/customer/useCategories';
 import { usePostJob, PostJobPayload } from '@/hooks/customer/usePostJob';
 import { TimeslotPicker } from '@/components/TimeslotPicker';
+import { CategorySelect } from '@/components/CategorySelect';
 import { toast } from 'react-hot-toast';
+import ChatIcon from '@mui/icons-material/Chat';
+import CategoryIcon from '@mui/icons-material/Category';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 
 export default function CustomerPostQuotePage() {
     const router = useRouter();
@@ -41,44 +46,54 @@ export default function CustomerPostQuotePage() {
     }
 
     return (
-        <div className="max-w-md mx-auto p-4 space-y-6">
-            <h1 className="text-2xl font-bold">Post & Quote</h1>
+        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-blue-100 to-yellow-100 py-8">
+            <div className="max-w-md mx-auto p-4 space-y-6">
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="text-pink-500 animate-bounce">
+                        <ChatIcon fontSize="large" />
+                    </span>
+                    <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-500 via-blue-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg">Post & Quote</h1>
+                </div>
 
-            <div>
-                <label>Category</label>
-                <select
-                    className="w-full border p-2 rounded"
-                    onChange={e => setCategoryId(Number(e.target.value))}
+                <div className="bg-white/80 rounded-xl shadow-lg p-6 space-y-6">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <CategoryIcon className="text-pink-500" />
+                            <label className="block font-bold text-gray-700">Category</label>
+                        </div>
+                        <CategorySelect value={categoryId} onChange={setCategoryId} placeholder="Select…" />
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <AttachMoneyIcon className="text-blue-500" />
+                            <label className="block font-bold text-gray-700">Accept Price ($)</label>
+                        </div>
+                        <input
+                            type="number"
+                            className="w-full border-2 border-blue-200 p-3 rounded-xl focus:border-blue-400 focus:outline-none transition-colors"
+                            value={acceptPrice}
+                            onChange={e => setAcceptPrice(Number(e.target.value))}
+                        />
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <ScheduleIcon className="text-yellow-500" />
+                            <label className="block font-bold text-gray-700">Timeslot</label>
+                        </div>
+                        <TimeslotPicker value={timeslot} onChange={setTimeslot} />
+                    </div>
+                </div>
+
+                <button
+                    disabled={!canSubmit || postJob.isPending}
+                    onClick={handleSubmit}
+                    className="w-full py-3 bg-gradient-to-r from-pink-400 via-blue-400 to-yellow-300 text-white font-bold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-lg"
                 >
-                    <option value="">Select…</option>
-                    {cats.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                </select>
+                    {postJob.isPending ? 'Posting...' : 'Post Job'}
+                </button>
             </div>
-
-            <div>
-                <label>Accept Price ($)</label>
-                <input
-                    type="number"
-                    className="w-full border p-2 rounded"
-                    value={acceptPrice}
-                    onChange={e => setAcceptPrice(Number(e.target.value))}
-                />
-            </div>
-
-            <div>
-                <label>Timeslot</label>
-                <TimeslotPicker value={timeslot} onChange={setTimeslot} />
-            </div>
-
-            <button
-                disabled={!canSubmit || postJob.isPending}
-                onClick={handleSubmit}
-                className="w-full py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-            >
-                {postJob.isPending ? 'Posting...' : 'Post Job'}
-            </button>
         </div>
     );
 }

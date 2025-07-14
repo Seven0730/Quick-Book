@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { useEffect, useRef } from 'react';
 import type { Bid } from '@/types';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 export default function ProviderBidDetailPage() {
     const { providerId, setProviderId } = useProviderContext();
@@ -84,29 +85,48 @@ export default function ProviderBidDetailPage() {
     }
 
     return (
-        <div className="max-w-md mx-auto p-4 space-y-4">
-            <h1 className="text-2xl font-bold">Bid detail #{bid.id}</h1>
-            <p>Job: #{bid.job.id}</p>
-            <p>Bid: ${bid.price.toFixed(2)}</p>
-            <p>Note: {bid.note || '—'}</p>
-            <p>Status: <strong>{status}</strong></p>
-
-            {status === 'ACCEPTED' && (
-                <button
-                    onClick={handleCancelBid}
-                    disabled={cancelBid.isPending}
-                    className="mt-4 px-4 py-2 bg-red-600 text-white rounded disabled:opacity-50"
+        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-blue-100 to-yellow-100 py-8">
+            <div className="max-w-md mx-auto p-4 space-y-6">
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="text-green-500 animate-bounce">
+                        <AssignmentTurnedInIcon fontSize="large" />
+                    </span>
+                    <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-green-400 via-blue-400 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg">Bid Detail #{bid.id}</h1>
+                </div>
+                <div className="bg-white/80 rounded-xl shadow-lg p-6 space-y-4">
+                    <div className="flex items-center gap-2 text-lg font-semibold">
+                        <span>Job:</span>
+                        <span className="text-blue-700">#{bid.job.id}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-lg font-semibold">
+                        <span>Bid:</span>
+                        <span className="text-yellow-700 font-bold">${bid.price.toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-lg font-semibold">
+                        <span>Note:</span>
+                        <span className="text-gray-700">{bid.note || '—'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-lg font-semibold">
+                        <span>Status:</span>
+                        <span className="text-gray-700 font-bold">{status}</span>
+                    </div>
+                </div>
+                {status === 'ACCEPTED' && (
+                    <button
+                        onClick={handleCancelBid}
+                        disabled={cancelBid.isPending}
+                        className="mt-4 px-6 py-2 bg-gradient-to-r from-red-400 via-pink-400 to-yellow-300 text-white font-bold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200 disabled:opacity-50"
+                    >
+                        {cancelBid.isPending ? 'Cancelling...' : 'Cancel this bid'}
+                    </button>
+                )}
+                <Link
+                    href="/provider/history"
+                    className="block mt-4 px-6 py-2 bg-gradient-to-r from-blue-400 via-pink-400 to-yellow-300 text-white font-bold rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200"
                 >
-                    {cancelBid.isPending ? 'Cancelling...' : 'Cancel this bid'}
-                </button>
-            )}
-
-            <Link
-                href="/provider/history"
-                className="block mt-4 text-blue-600 hover:underline"
-            >
-                ← Return to history
-            </Link>
+                    ← Return to history
+                </Link>
+            </div>
         </div>
     );
 }

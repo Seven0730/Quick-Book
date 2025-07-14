@@ -5,6 +5,7 @@ import { useAppSocket } from '@/lib/hooks/useAppSocket';
 import { useProviderContext } from '@/contexts/ProviderContext';
 import type { Job } from '@/types';
 import { QuickBookCard } from '@/components/QuickBookCard';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
 
 export default function ProviderQuickBookPage() {
     const { providerId, setProviderId } = useProviderContext();
@@ -61,11 +62,20 @@ export default function ProviderQuickBookPage() {
     }
 
     return (
-        <div className="max-w-md mx-auto p-4 space-y-4">
-            <h1 className="text-2xl font-bold">Quick-Book Dashboard</h1>
-            {jobs.map(job => (
-                <QuickBookCard key={job.id} job={job} />
-            ))}
+        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-blue-100 to-yellow-100 py-8">
+            <div className="max-w-md mx-auto p-4 space-y-6">
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="text-pink-500 animate-bounce">
+                        <FlashOnIcon fontSize="large" />
+                    </span>
+                    <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-pink-500 via-blue-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg">Quick-Book</h1>
+                </div>
+                <div className="space-y-4">
+                    {jobs.map(job => (
+                        <QuickBookCard key={job.id} job={job} />
+                    ))}
+                </div>
+            </div>
         </div>
     );
 }
