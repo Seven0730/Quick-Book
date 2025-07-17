@@ -5,6 +5,7 @@ import { usePendingJobs } from '@/hooks/provider/usePendingJobs'
 import { usePostBid } from '@/hooks/provider/usePostBid'
 import { useAppSocket } from '@/lib/hooks/useAppSocket'
 import { useProviderContext } from '@/contexts/ProviderContext'
+import { useRouter } from 'next/navigation';
 
 import type { Job } from '@/types'
 import toast from 'react-hot-toast'
@@ -12,6 +13,7 @@ import ChatIcon from '@mui/icons-material/Chat';
 
 export default function ProviderPostQuotePage() {
     const { providerId, setProviderId } = useProviderContext();
+    const router = useRouter();
     const { data: initialJobs = [], isLoading, error } = usePendingJobs();
     const postBid = usePostBid()
     const { socket, ready } = useAppSocket()
@@ -51,25 +53,12 @@ export default function ProviderPostQuotePage() {
         }
     }, [isLoading, jobs.length]);
 
-    if (providerId == null) {
-        return (
-            <div className="max-w-sm mx-auto p-4 space-y-4">
-                <h1 className="text-xl font-bold">Provider Login</h1>
-                <input
-                    type="number"
-                    placeholder="Enter your providerId"
-                    className="w-full border p-2 rounded"
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            const val = Number((e.target as HTMLInputElement).value);
-                            if (!isNaN(val)) setProviderId(val);
-                        }
-                    }}
-                />
-                <p className="text-sm text-gray-600">Press Enter to connect</p>
-            </div>
-        );
-    }
+    useEffect(() => {
+        if (providerId == null) {
+            router.replace('/provider/login');
+        }
+    }, [providerId, router]);
+    if (providerId == null) return null;
 
     if (isLoading) return <p>Loading jobs…</p>
     if (!jobs.length) return <p>No Post & Quote jobs right now.</p>

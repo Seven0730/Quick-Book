@@ -5,40 +5,25 @@ import { useUserContext } from '@/contexts/UserContext';
 import { useProviderContext } from '@/contexts/ProviderContext';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
+import { ProviderIdInput } from '@/components/ProviderIdInput';
 
 export default function ProviderLoginPage() {
   const router = useRouter();
   const { setIsAuthenticated } = useUserContext();
   const { setProviderId } = useProviderContext();
-  const [providerIdInput, setProviderIdInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = async () => {
-    const id = Number(providerIdInput);
-    
-    if (!providerIdInput || isNaN(id) || id <= 0) {
-      toast.error('Please enter a valid provider ID');
-      return;
-    }
-
+  const handleLogin = async (id: number) => {
     setIsSubmitting(true);
-    
     try {
       setProviderId(id);
       setIsAuthenticated(true);
-      
       toast.success(`Welcome, Provider #${id}!`);
       router.push('/provider');
     } catch {
       toast.error('Login failed. Please try again.');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleLogin();
     }
   };
 
@@ -57,28 +42,8 @@ export default function ProviderLoginPage() {
 
         <div className="space-y-6">
           <div>
-            <label htmlFor="providerId" className="block text-sm font-medium text-gray-700 mb-2">
-              Provider ID
-            </label>
-            <input
-              id="providerId"
-              type="number"
-              placeholder="Enter your provider ID"
-              value={providerIdInput}
-              onChange={(e) => setProviderIdInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-              disabled={isSubmitting}
-            />
+            <ProviderIdInput onSubmit={handleLogin} loading={isSubmitting} />
           </div>
-
-          <button
-            onClick={handleLogin}
-            disabled={!providerIdInput || isSubmitting}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting ? 'Logging in...' : 'Login'}
-          </button>
 
           <div className="text-center">
             <Link

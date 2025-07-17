@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast';
 import { useEffect, useRef } from 'react';
 import type { Bid } from '@/types';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { ProviderIdInput } from '@/components/ProviderIdInput';
 
 export default function ProviderBidDetailPage() {
     const { providerId, setProviderId } = useProviderContext();
@@ -64,25 +65,12 @@ export default function ProviderBidDetailPage() {
 
     const status = deriveStatus(bid);
 
-    if (providerId == null) {
-        return (
-            <div className="max-w-sm mx-auto p-4 space-y-4">
-                <h1 className="text-xl font-bold">Provider Login</h1>
-                <input
-                    type="number"
-                    placeholder="Enter your providerId"
-                    className="w-full border p-2 rounded"
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            const val = Number((e.target as HTMLInputElement).value);
-                            if (!isNaN(val)) setProviderId(val);
-                        }
-                    }}
-                />
-                <p className="text-sm text-gray-600">Press Enter to connect</p>
-            </div>
-        );
-    }
+    useEffect(() => {
+        if (providerId == null) {
+            router.replace('/provider/login');
+        }
+    }, [providerId, router]);
+    if (providerId == null) return null;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-pink-100 via-blue-100 to-yellow-100 py-8">

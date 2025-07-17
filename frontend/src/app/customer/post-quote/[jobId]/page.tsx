@@ -7,6 +7,9 @@ import { useTopBids }              from '@/hooks/customer/useTopBids';
 import { fetcher }                 from '@/lib/api';
 import { toast }                   from 'react-hot-toast';
 import type { Job, Bid }           from '@/types';
+import { HourglassEmpty, EmojiEvents, Bolt } from '@mui/icons-material';
+import { BiddingStageCard } from '@/components/BiddingStageCard';
+import { QuoteList } from '@/components/QuoteList';
 
 const STAGE1 = 5 * 60;   // 5 minutes in seconds
 const STAGE2 = 15 * 60;  // 15 minutes total
@@ -94,54 +97,31 @@ export default function CustomerPostQuoteWaitingPage() {
 
   // --- STILL IN BIDDING ---
   if (!stageDone) {
-    const remaining = (stage === 1 ? STAGE1 : STAGE2) - elapsed;
-    const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
-    const ss = String(remaining % 60).padStart(2, '0');
-
     return (
-      <div className="max-w-md mx-auto p-4 space-y-4">
-        <h2 className="text-xl font-bold">Wave {stage} Bidding</h2>
-        <p>
-          {stage === 1
-            ? 'Tier‐A providers within 3 km'
-            : stage === 2
-            ? 'Tier‐B providers within 10 km'
-            : 'All providers'}
-        </p>
-        <p><strong>Time remaining:</strong> {mm}:{ss}</p>
-        <p><strong>Accept Price:</strong> ${job.acceptPrice!.toFixed(2)}</p>
+      <div className="min-h-screen bg-gradient-to-br from-pink-100 via-blue-100 to-yellow-100 flex items-center justify-center py-8">
+        <BiddingStageCard
+          stage={stage}
+          elapsed={elapsed}
+          STAGE1={STAGE1}
+          STAGE2={STAGE2}
+          acceptPrice={job.acceptPrice!}
+        />
       </div>
     );
   }
 
   // --- BIDDING DONE: SHOW TOP 3 QUOTES ---
   return (
-    <div className="max-w-md mx-auto p-4 space-y-4">
-      <h2 className="text-xl font-bold">Choose a Quote</h2>
-      {topBids.length === 0 && <p>No bids received.</p>}
-      {topBids.map((bid: Bid) => (
-        <div key={bid.id} className="border p-3 rounded space-y-2">
-          <p>Provider #{bid.providerId} — <strong>${bid.price.toFixed(2)}</strong></p>
-          <p className="text-gray-600">{bid.note}</p>
-          <button
-            className="px-4 py-1 bg-green-600 text-white rounded"
-            onClick={async () => {
-              try {
-                await fetcher<Job>(
-                  `/jobs/${jobId}/bids/${bid.id}/select`,
-                  { method: 'POST' }
-                );
-                toast.success('Hired! 🎉');
-                router.push(`/customer/post-quote/${jobId}/accepted`);
-              } catch (err: any) {
-                toast.error(`Failed to hire: ${err.message}`);
-              }
-            }}
-          >
-            Hire
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-blue-100 to-yellow-100 flex items-center justify-center py-8">
+      <div className="max-w-md w-full mx-auto p-6 bg-white/80 rounded-2xl shadow-2xl space-y-6">
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-yellow-400"><svg width="32" height="32" fill="currentColor"><circle cx="16" cy="16" r="16"/></svg></span>
+          <h2 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-pink-500 via-blue-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg">
+            Choose a Quote
+          </h2>
         </div>
-      ))}
+        <QuoteList bids={topBids} jobId={jobId} />
+      </div>
     </div>
   );
 }

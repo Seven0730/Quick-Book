@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCategories } from '@/hooks/customer/useCategories';
 import { usePostJob, PostJobPayload } from '@/hooks/customer/usePostJob';
+import { usePriceGuidance } from '@/hooks/customer/usePriceGuidance';
 import { TimeslotPicker } from '@/components/TimeslotPicker';
 import { CategorySelect } from '@/components/CategorySelect';
 import { toast } from 'react-hot-toast';
@@ -19,6 +20,8 @@ export default function CustomerPostQuotePage() {
     const [categoryId, setCategoryId] = useState<number>();
     const [acceptPrice, setAcceptPrice] = useState<number>(0);
     const [timeslot, setTimeslot] = useState('');
+
+    const { data: guidance, isLoading: loadingGuidance } = usePriceGuidance(categoryId);
 
     const canSubmit = !!categoryId && !!timeslot && acceptPrice > 0;
 
@@ -75,6 +78,23 @@ export default function CustomerPostQuotePage() {
                             value={acceptPrice}
                             onChange={e => setAcceptPrice(Number(e.target.value))}
                         />
+                        {categoryId && (
+                            <div className="text-sm text-gray-500 mt-1">
+                                {loadingGuidance && 'Loading price guidance...'}
+                                {guidance && (
+                                    <>
+                                        <span>Recommended: <b>${guidance.p50.toFixed(2)}</b></span>
+                                        <button
+                                            type="button"
+                                            className="ml-2 px-2 py-1 bg-blue-100 rounded text-blue-600 hover:bg-blue-200"
+                                            onClick={() => setAcceptPrice(guidance.p50)}
+                                        >
+                                            Use
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="space-y-4">

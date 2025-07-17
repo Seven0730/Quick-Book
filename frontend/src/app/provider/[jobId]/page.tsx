@@ -5,17 +5,27 @@ import { useJob } from '@/hooks/customer/jobs';
 import { usePostBid } from '@/hooks/provider/usePostBid';
 import { useProviderContext } from '@/contexts/ProviderContext';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import { ProviderIdInput } from '@/components/ProviderIdInput';
 
 export default function ProviderJobDetailPage() {
     const path = usePathname()!;
     const jobId = Number(path.split('/').pop());
     const { providerId, setProviderId } = useProviderContext();
+    const router = useRouter();
 
     const { data: job, isLoading, error } = useJob(jobId);
     const postBid = usePostBid();
     const [price, setPrice] = useState(0);
     const [note, setNote] = useState('');
     const toastShown = useRef<{error?: boolean; notFound?: boolean}>({});
+
+    useEffect(() => {
+        if (providerId == null) {
+            router.replace('/provider/login');
+        }
+    }, [providerId, router]);
+    if (providerId == null) return null;
 
     useEffect(() => {
         if (error && !toastShown.current.error) {
@@ -48,26 +58,6 @@ export default function ProviderJobDetailPage() {
                     toast.error(`Failed to submit bid: ${err.message}`);
                 },
             }
-        );
-    }
-
-    if (providerId == null) {
-        return (
-            <div className="max-w-sm mx-auto p-4 space-y-4">
-                <h1 className="text-xl font-bold">Provider Login</h1>
-                <input
-                    type="number"
-                    placeholder="Enter your providerId"
-                    className="w-full border p-2 rounded"
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            const val = Number((e.target as HTMLInputElement).value);
-                            if (!isNaN(val)) setProviderId(val);
-                        }
-                    }}
-                />
-                <p className="text-sm text-gray-600">Press Enter to connect</p>
-            </div>
         );
     }
 
