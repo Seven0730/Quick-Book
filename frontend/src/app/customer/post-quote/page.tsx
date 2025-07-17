@@ -34,6 +34,7 @@ export default function CustomerPostQuotePage() {
             timeslot,
             customerLat: 1.3521,
             customerLon: 103.8198,
+            jobType: 'POSTQUOTE',
         };
         postJob.mutate(payload, {
             onSuccess: (job) => {

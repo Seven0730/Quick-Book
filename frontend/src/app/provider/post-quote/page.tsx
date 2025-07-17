@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { usePendingJobs } from '@/hooks/provider/usePendingJobs'
+import { usePendingPostQuoteJobs } from '@/hooks/provider/usePendingPostQuoteJobs'
 import { usePostBid } from '@/hooks/provider/usePostBid'
 import { useAppSocket } from '@/lib/hooks/useAppSocket'
 import { useProviderContext } from '@/contexts/ProviderContext'
@@ -14,7 +14,7 @@ import ChatIcon from '@mui/icons-material/Chat';
 export default function ProviderPostQuotePage() {
     const { providerId, setProviderId } = useProviderContext();
     const router = useRouter();
-    const { data: initialJobs = [], isLoading, error } = usePendingJobs();
+    const { data: initialJobs = [], isLoading, error } = usePendingPostQuoteJobs(providerId ?? undefined);
     const postBid = usePostBid()
     const { socket, ready } = useAppSocket()
     const toastShown = useRef<{error?: boolean; noJobs?: boolean}>({});

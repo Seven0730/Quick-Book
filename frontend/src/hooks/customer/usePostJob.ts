@@ -9,6 +9,7 @@ export interface PostJobPayload {
     customerLon: number
     price?: number
     acceptPrice?: number
+    jobType: 'QUICKBOOK' | 'POSTQUOTE'
 }
 
 export function usePostJob() {
@@ -29,6 +30,7 @@ export function usePostJob() {
                     customerLon: payload.customerLon,
                     price: payload.price,
                     acceptPrice: payload.acceptPrice ?? null,
+                    jobType: payload.jobType,
                 }),
             })
         },

@@ -2,10 +2,11 @@ import prisma from '../lib/prisma';
 import type { Job } from '@prisma/client';
 
 export const jobRepository = {
-    findAll: (status?: string): Promise<Job[]> => {
-        return prisma.job.findMany({
-            where: status ? { status } : undefined,
-        });
+    findAll: (status?: string, jobType?: 'QUICKBOOK' | 'POSTQUOTE'): Promise<Job[]> => {
+        const where: any = {};
+        if (status) where.status = status;
+        if (jobType) where.jobType = jobType;
+        return prisma.job.findMany({ where });
     },
     findById: (id: number) => prisma.job.findUnique({ where: { id }, include: { category: true } }),
     create: (data: {

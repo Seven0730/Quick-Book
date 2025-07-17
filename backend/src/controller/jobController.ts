@@ -6,13 +6,18 @@ import { haversine } from '../utils/haversine';
 
 export class JobController {
     static async list(
-        req: FastifyRequest<{ Querystring: { status?: string } }>,
+        req: FastifyRequest<{ Querystring: { status?: string; jobType?: 'QUICKBOOK' | 'POSTQUOTE' } }>,
         reply: FastifyReply
     ) {
-        const status = req.query.status;
-        const jobs = await jobService.list(status);
+        const { status, jobType } = req.query;
+        let jobs;
+        if (jobType) {
+            jobs = await jobService.listByType(jobType);
+        } else {
+            jobs = await jobService.list(status);
+        }
         const visible = jobs.filter(j => j.status !== 'DESTROYED');
-        return reply.send(jobs);
+        return reply.send(visible);
     }
     static async get(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
         const id = Number(req.params.id);
@@ -135,15 +140,5 @@ export class JobController {
             req.log.error(err);
             return reply.status(500).send({ error: 'Internal Server Error' });
         }
-    }
-
-    static async listByType(
-        req: FastifyRequest<{ Querystring: { jobType: 'QUICKBOOK' | 'POSTQUOTE' } }>,
-        reply: FastifyReply
-    ) {
-        const { jobType } = req.query;
-        if (!jobType) return reply.status(400).send({ error: 'Missing jobType' });
-        const jobs = await jobService.listByType(jobType);
-        return reply.send(jobs);
     }
 }

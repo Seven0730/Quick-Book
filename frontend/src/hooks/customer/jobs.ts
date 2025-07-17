@@ -35,3 +35,19 @@ export function useJobBids(jobId?: number) {
         staleTime: 1000 * 30,
     });
 }
+
+export function useQuickBookJobs() {
+    return useQuery<Job[], Error>({
+        queryKey: ['quickbook-jobs'],
+        queryFn: () => fetcher<Job[]>('/jobs?jobType=QUICKBOOK'),
+        staleTime: 1000 * 60,
+    });
+}
+
+export function usePostQuoteJobs() {
+    return useQuery<Job[], Error>({
+        queryKey: ['postquote-jobs'],
+        queryFn: () => fetcher<Job[]>('/jobs?jobType=POSTQUOTE'),
+        staleTime: 1000 * 60,
+    });
+}

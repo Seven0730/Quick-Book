@@ -8,7 +8,7 @@ import type { Job } from '@/types';
 export function usePendingJobs() {
     return useQuery<Job[], Error>({
         queryKey: ['provider-pending-jobs'],
-        queryFn: () => fetcher<Job[]>('/jobs?status=PENDING'),
+        queryFn: () => fetcher<Job[]>('/jobs?status=PENDING&jobType=QUICKBOOK'),
         staleTime: 30 * 1000,  // refetch every 30s
     });
 }

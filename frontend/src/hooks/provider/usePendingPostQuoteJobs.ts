@@ -9,7 +9,7 @@ import type { Job } from '@/types'
 export function usePendingPostQuoteJobs(providerId?: number) {
     return useQuery<Job[], Error>({
         queryKey: ['provider-post-quote-jobs', providerId],
-        queryFn: () => fetcher(`/jobs?flow=post-quote&status=Pending`),
+        queryFn: () => fetcher(`/jobs?status=PENDING&jobType=POSTQUOTE`),
         enabled: !!providerId,
         // background refetch every 30s
         refetchInterval: 30_000,

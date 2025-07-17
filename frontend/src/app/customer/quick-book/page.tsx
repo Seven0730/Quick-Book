@@ -59,9 +59,9 @@ export default function CustomerQuickBookPage() {
                     categoryId: catId,
                     price,
                     timeslot,
-                    // you might pull actual coords from browser geolocation
                     customerLat: 1.3521,
                     customerLon: 103.8198,
+                    jobType: 'QUICKBOOK',
                 }),
             });
             toast.dismiss();
