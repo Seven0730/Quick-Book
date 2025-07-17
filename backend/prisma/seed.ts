@@ -22,6 +22,10 @@ function randomChoice<T>(arr: T[]): T {
 async function main() {
   console.log('Start seeding…');
 
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Job" RESTART IDENTITY CASCADE;`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Provider" RESTART IDENTITY CASCADE;`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Category" RESTART IDENTITY CASCADE;`);
+
   const categoryNames = [
     'Cleaning', 'Plumbing', 'Electrical', 'Painting', 'Gardening',
     'Moving', 'Tutoring', 'Pet-sitting', 'Appliance Repair', 'Car Wash'
@@ -67,6 +71,7 @@ async function main() {
         customerLon,
         status:       'COMPLETED',
         createdAt,
+        jobType:      'POSTQUOTE'
       }
     });
   }

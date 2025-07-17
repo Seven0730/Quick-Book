@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "JobType" AS ENUM ('QUICKBOOK', 'POSTQUOTE');
+
+-- AlterTable
+ALTER TABLE "Job" ADD COLUMN     "jobType" "JobType" NOT NULL DEFAULT 'POSTQUOTE';

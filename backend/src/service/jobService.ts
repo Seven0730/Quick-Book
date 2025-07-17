@@ -70,6 +70,9 @@ export const jobService = {
     list: (status?: string): Promise<Job[]> => {
         return jobRepository.findAll(status);
     },
+    listByType: (jobType: 'QUICKBOOK' | 'POSTQUOTE'): Promise<Job[]> => {
+        return jobRepository.findByType(jobType);
+    },
     get: (id: number) => jobRepository.findById(id),
     create: async (payload: {
         categoryId: number;
@@ -79,6 +82,7 @@ export const jobService = {
         acceptPrice?: number;
         customerLat: number;
         customerLon: number;
+        jobType?: 'QUICKBOOK' | 'POSTQUOTE';
     }): Promise<Job> => {
         const job = await jobRepository.create(payload);
 

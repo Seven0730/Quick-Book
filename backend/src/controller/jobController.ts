@@ -25,7 +25,7 @@ export class JobController {
         req: FastifyRequest,
         reply: FastifyReply
     ) {
-        const { categoryId, price, timeslot, customerLat, customerLon, acceptPrice } =
+        const { categoryId, price, timeslot, customerLat, customerLon, acceptPrice, jobType } =
             req.body as {
                 categoryId: number;
                 price: number;
@@ -33,10 +33,11 @@ export class JobController {
                 customerLat: number;
                 customerLon: number;
                 acceptPrice?: number;
+                jobType?: 'QUICKBOOK' | 'POSTQUOTE';
             };
 
         const job = await jobService.create({
-            categoryId, price, timeslot, customerLat, customerLon, acceptPrice
+            categoryId, price, timeslot, customerLat, customerLon, acceptPrice, jobType
         });
 
         // get all available provider sockets
@@ -134,5 +135,15 @@ export class JobController {
             req.log.error(err);
             return reply.status(500).send({ error: 'Internal Server Error' });
         }
+    }
+
+    static async listByType(
+        req: FastifyRequest<{ Querystring: { jobType: 'QUICKBOOK' | 'POSTQUOTE' } }>,
+        reply: FastifyReply
+    ) {
+        const { jobType } = req.query;
+        if (!jobType) return reply.status(400).send({ error: 'Missing jobType' });
+        const jobs = await jobService.listByType(jobType);
+        return reply.send(jobs);
     }
 }

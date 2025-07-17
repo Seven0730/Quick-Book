@@ -15,6 +15,7 @@ export const jobRepository = {
         customerLat: number;
         customerLon: number;
         acceptPrice?: number;
+        jobType?: 'QUICKBOOK' | 'POSTQUOTE';
     }) => prisma.job.create({ data }),
     update: (id: number, data: { price?: number; timeslot?: string; status?: string }) =>
         prisma.job.update({ where: { id }, data }),
@@ -61,4 +62,6 @@ export const jobRepository = {
             },
             orderBy: { createdAt: 'desc' }
         }),
+    findByType: (jobType: 'QUICKBOOK' | 'POSTQUOTE') =>
+        prisma.job.findMany({ where: { jobType } }),
 };
