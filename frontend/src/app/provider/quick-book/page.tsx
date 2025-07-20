@@ -1,48 +1,16 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { usePendingJobs } from '@/hooks/provider/usePendingJobs';
-import { useAppSocket } from '@/lib/hooks/useAppSocket';
 import { useProviderContext } from '@/contexts/ProviderContext';
-import type { Job } from '@/types';
 import { QuickBookCard } from '@/components/QuickBookCard';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
-import { ProviderIdInput } from '@/components/ProviderIdInput';
 import { useRouter } from 'next/navigation';
 
 export default function ProviderQuickBookPage() {
     const { providerId, setProviderId } = useProviderContext();
     const router = useRouter();
     const { data: initial = [] } = usePendingJobs();
-    const { socket, ready } = useAppSocket();
-    const [jobs, setJobs] = useState(initial);
-
-    useEffect(() => { setJobs(initial) }, [initial]);
-
-    useEffect(() => {
-        if (!socket || !ready) return;
-        const onJob = (job: Job) => {
-            if (job.status === 'PENDING') setJobs(prev => [job, ...prev]);
-        };
-        socket.on('new-job', onJob);
-        return () => { socket.off('new-job', onJob); };
-    }, [socket, ready]);
-
-    // when someone books it, remove from list
-    useEffect(() => {
-        if (!socket || !ready) return;
-        const onBooked = (updated: Job) => {
-            setJobs(prev => prev.filter(j => j.id !== updated.id));
-        };
-        const onDestroyed = ({ jobId }: { jobId: number }) => {
-            setJobs(prev => prev.filter(j => j.id !== jobId));
-        };
-        socket.on('job-destroyed', onDestroyed);
-        socket.on('job-booked', onBooked);
-        return () => {
-            socket.off('job-booked', onBooked);
-            socket.off('job-destroyed', onDestroyed);
-        };
-    }, [socket, ready]);
+    const jobs = initial;
 
     useEffect(() => {
         if (providerId == null) {

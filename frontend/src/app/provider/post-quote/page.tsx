@@ -19,18 +19,13 @@ export default function ProviderPostQuotePage() {
     const { socket, ready } = useAppSocket()
     const toastShown = useRef<{error?: boolean; noJobs?: boolean}>({});
 
-    const [jobs, setJobs] = useState<Job[]>(initialJobs)
-
-    useEffect(() => {
-        setJobs(initialJobs)
-    }, [initialJobs])
+    const jobs = initialJobs;
 
     useEffect(() => {
         if (!socket || !ready) return
         const onNew = (job: Job) => {
             if (job.status === 'PENDING') {
                 toast(`New job #${job.id}`, { icon: '🆕' })
-                setJobs(js => [job, ...js])
             }
         }
         socket.on('new-job', onNew)
@@ -116,7 +111,12 @@ function JobBidForm({
 
     return (
         <div className="bg-white/80 border border-pink-100 rounded-xl shadow-lg p-6 space-y-3">
-            <p className="font-semibold text-blue-600"><strong>Job #{job.id}</strong> — AcceptPrice: ${job.acceptPrice!.toFixed(2)}</p>
+            <p className="font-semibold text-blue-600">
+                <strong>Job #{job.id}</strong> — AcceptPrice: $
+                {typeof job.acceptPrice === 'number'
+                    ? job.acceptPrice.toFixed(2)
+                    : '--'}
+            </p>
             <p className="text-gray-700">{job.description}</p>
             <div className="flex flex-col sm:flex-row gap-2 items-stretch">
                 <input

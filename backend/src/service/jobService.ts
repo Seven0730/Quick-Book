@@ -68,8 +68,7 @@ function percentile(sorted: number[], p: number): number {
 
 export const jobService = {
     list: (status?: string, jobType?: 'QUICKBOOK' | 'POSTQUOTE'): Promise<Job[]> => {
-        if (jobType) return jobRepository.findByType(jobType);
-        return jobRepository.findAll(status);
+        return jobRepository.findAll(status, jobType);
     },
     listByType: (jobType: 'QUICKBOOK' | 'POSTQUOTE'): Promise<Job[]> => {
         return jobRepository.findByType(jobType);

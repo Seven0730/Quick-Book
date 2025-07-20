@@ -11,14 +11,21 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 export function QuickBookCard({ job }: { job: Job }) {
     const { socket } = useAppSocket();
     const { providerId } = useProviderContext();
-    const [timer, setTimer] = useState(30);
+    const [timer, setTimer] = useState(() => {
+        const created = new Date(job.createdAt).getTime();
+        const now = Date.now();
+        return Math.max(0, 30 - Math.floor((now - created) / 1000));
+    });
     const [hidden, setHidden] = useState(false);
 
     useEffect(() => {
-        if (hidden) return;
-        const iv = setInterval(() => setTimer(t => t - 1), 1000);
-        return () => clearInterval(iv);
-    }, [hidden]);
+        const interval = setInterval(() => {
+            const created = new Date(job.createdAt).getTime();
+            const now = Date.now();
+            setTimer(Math.max(0, 30 - Math.floor((now - created) / 1000)));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [job.createdAt]);
 
     async function accept() {
         if (!providerId) return;

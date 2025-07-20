@@ -10,12 +10,7 @@ export class JobController {
         reply: FastifyReply
     ) {
         const { status, jobType } = req.query;
-        let jobs;
-        if (jobType) {
-            jobs = await jobService.listByType(jobType);
-        } else {
-            jobs = await jobService.list(status);
-        }
+        const jobs = await jobService.list(status, jobType);
         const visible = jobs.filter(j => j.status !== 'DESTROYED');
         return reply.send(visible);
     }
