@@ -94,6 +94,9 @@ export class JobController {
             if (err.message === 'Job already taken') {
                 return reply.status(409).send({ error: err.message });
             }
+            if (err.message.includes('Failed to acquire lock')) {
+                return reply.status(409).send({ error: 'Job is being processed by another provider. Please try again.' });
+            }
             req.log.error(err);
             return reply.status(500).send({ error: 'Internal Server Error' });
         }

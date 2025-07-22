@@ -51,7 +51,7 @@ export default function ProviderPostQuotePage() {
     }, [isLoading, jobs.length]);
 
     useEffect(() => {
-        if (providerId == null) {
+    if (providerId == null) {
             router.replace('/provider/login');
         }
     }, [providerId, router]);

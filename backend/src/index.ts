@@ -7,11 +7,15 @@ import { escrowRoutes } from './routes/escrow';
 import { providersRoutes } from './routes/providers';
 import { bidsRoutes } from './routes/bids';
 import { initSocket } from './socket';
+import { initRedis } from './lib/redis';
 
 async function start() {
 
     const app = Fastify({ logger: true });
     await app.register(cors, { origin: '*' });
+
+    // Initialize Redis connection
+    await initRedis();
 
     await app.register(rateLimit, {
         max: 1000,

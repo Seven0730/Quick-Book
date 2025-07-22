@@ -7,6 +7,7 @@ import { getIO, providerSockets } from '../socket';
 import { haversine } from '../utils/haversine';
 import { Job } from '@prisma/client';
 import { PriceGuidance } from '../schemas/PriceGuidance';
+import { DistributedLock } from '../lib/redis';
 
 const STAGE1_RADIUS_KM = 3;
 const STAGE2_RADIUS_KM = 10;
@@ -141,18 +142,26 @@ export const jobService = {
     },
 
     async accept(id: number, providerId: number): Promise<Job> {
-        const ok = await jobRepository.accept(id, providerId);
-        if (!ok) throw new Error('Job already taken');
-        const job = await jobRepository.findById(id);
-        if (!job) throw new Error('Job not found');
-        if (!isTest) {
-            try {
-                await escrowService.hold(job.id, job.price);
-            } catch (err: any) {
-                if (err.message !== 'Already held') throw err;
+        const lockKey = `job-accept-${id}`;
+        
+        // Use distributed lock to prevent race conditions
+        return await DistributedLock.withLock(lockKey, async () => {
+            const ok = await jobRepository.accept(id, providerId);
+            if (!ok) throw new Error('Job already taken');
+            
+            const job = await jobRepository.findById(id);
+            if (!job) throw new Error('Job not found');
+            
+            if (!isTest) {
+                try {
+                    await escrowService.hold(job.id, job.price);
+                } catch (err: any) {
+                    if (err.message !== 'Already held') throw err;
+                }
             }
-        }
-        return job;
+            
+            return job;
+        }, 5000); // 5 second timeout for the lock
     },
 
     async cancelByProvider(id: number, providerId: number): Promise<Job> {

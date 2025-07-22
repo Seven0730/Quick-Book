@@ -16,6 +16,20 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -23,8 +37,10 @@ services:
     restart: always
     depends_on:
       - db
+      - redis
     environment:
       DATABASE_URL: postgresql://admin:password@db:5432/appdb
+      REDIS_URL: redis://redis:6379
       NODE_ENV: production
     ports:
       - '4000:4000'
@@ -43,3 +59,4 @@ services:
 
 volumes:
   db_data:
+  redis_data:
