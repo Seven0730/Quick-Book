@@ -44,13 +44,14 @@ export class JobController {
         const providers = await providerService.list();
         const io = getIO();
 
+        const eventName = jobType === 'QUICKBOOK' ? 'new-quickbook-job' : 'new-postquote-job';
         // send job to all providers within 5km
         for (const p of providers) {
             const d = haversine(customerLat, customerLon, p.lat, p.lon);
             if (d <= 5) {
                 const sockId = providerSockets.get(p.id)?.socketId;
                 if (sockId) {
-                    io.to(sockId).emit('new-job', job);
+                    io.to(sockId).emit(eventName, job);
                 }
             }
         }

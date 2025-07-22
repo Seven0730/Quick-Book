@@ -5,18 +5,32 @@ import { useProviderContext } from '@/contexts/ProviderContext';
 import { QuickBookCard } from '@/components/QuickBookCard';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAppSocket } from '@/lib/hooks/useAppSocket';
 
 export default function ProviderQuickBookPage() {
     const { providerId, setProviderId } = useProviderContext();
     const router = useRouter();
     const { data: initial = [] } = usePendingJobs();
     const jobs = initial;
+    const queryClient = useQueryClient();
+    const { socket } = useAppSocket();
 
     useEffect(() => {
         if (providerId == null) {
             router.replace('/provider/login');
         }
     }, [providerId, router]);
+
+    useEffect(() => {
+        if (!socket) return;
+        const onNewQuickBookJob = () => {
+            queryClient.invalidateQueries({ queryKey: ['provider-pending-jobs'] });
+        };
+        socket.on('new-quickbook-job', onNewQuickBookJob);
+        return () => { socket.off('new-quickbook-job', onNewQuickBookJob); };
+    }, [socket, queryClient]);
+
     if (providerId == null) return null;
 
     return (

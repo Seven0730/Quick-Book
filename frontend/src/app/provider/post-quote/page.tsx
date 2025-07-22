@@ -6,6 +6,7 @@ import { usePostBid } from '@/hooks/provider/usePostBid'
 import { useAppSocket } from '@/lib/hooks/useAppSocket'
 import { useProviderContext } from '@/contexts/ProviderContext'
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 
 import type { Job } from '@/types'
 import toast from 'react-hot-toast'
@@ -16,6 +17,7 @@ export default function ProviderPostQuotePage() {
     const router = useRouter();
     const { data: initialJobs = [], isLoading, error } = usePendingPostQuoteJobs(providerId ?? undefined);
     const postBid = usePostBid()
+    const queryClient = useQueryClient();
     const { socket, ready } = useAppSocket()
     const toastShown = useRef<{error?: boolean; noJobs?: boolean}>({});
 
@@ -53,6 +55,25 @@ export default function ProviderPostQuotePage() {
             router.replace('/provider/login');
         }
     }, [providerId, router]);
+
+    useEffect(() => {
+        if (!socket) return;
+        const onNewJob = () => {
+            queryClient.invalidateQueries({ queryKey: ['provider-post-quote-jobs'] });
+        };
+        socket.on('new-job', onNewJob);
+        return () => { socket.off('new-job', onNewJob); };
+    }, [socket, queryClient]);
+
+    useEffect(() => {
+        if (!socket) return;
+        const onNewPostQuoteJob = () => {
+            queryClient.invalidateQueries({ queryKey: ['provider-post-quote-jobs'] });
+        };
+        socket.on('new-postquote-job', onNewPostQuoteJob);
+        return () => { socket.off('new-postquote-job', onNewPostQuoteJob); };
+    }, [socket, queryClient]);
+
     if (providerId == null) return null;
 
     if (isLoading) return <p>Loading jobs…</p>
